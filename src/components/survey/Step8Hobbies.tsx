@@ -75,12 +75,12 @@ export default function Step8Hobbies() {
     if (selected.includes(opt)) {
       setSelected(selected.filter((s) => s !== opt));
     } else {
-      if (selected.length < 5) setSelected([...selected, opt]);
+      if (selected.length < 10) setSelected([...selected, opt]);
     }
   };
 
   const handleNext = async () => {
-    if (selected.length === 0) return;
+    if (selected.length < 3) return;
     setIsLoading(true);
     try {
       if (responseId) {
@@ -97,13 +97,13 @@ export default function Step8Hobbies() {
     }
   };
 
-  const maxSelected = selected.length >= 5;
+  const maxSelected = selected.length >= 10;
 
   return (
     <div className="flex flex-col items-center max-w-4xl mx-auto space-y-10 w-full py-10 pb-32">
        <div className="text-center space-y-4">
         <h2 className="text-3xl md:text-5xl font-bold">What do you actually do IRL?</h2>
-        <p className="text-white/60 text-lg">Pick your top 3 to 5 hobbies.</p>
+        <p className="text-white/60 text-lg">Pick your top 3 to 10 hobbies.</p>
       </div>
 
       <div className="flex flex-col w-full gap-4">
@@ -173,14 +173,14 @@ export default function Step8Hobbies() {
           <span className={selected.length >= 3 ? "text-primary" : "text-white/60"}>
             {selected.length}
           </span>
-          <span className="text-white/60"> / 5 selected (Min 1, Up to 5)</span>
+          <span className="text-white/60"> / 10 selected (Min 3, Up to 10)</span>
         </div>
         <div className="pr-2 md:pr-8">
           <motion.button
             onClick={handleNext}
-            disabled={selected.length === 0 || isLoading}
+            disabled={selected.length < 3 || isLoading}
             className={`px-8 py-3 rounded-full font-bold text-xl transition-colors ${
-              selected.length > 0
+              selected.length >= 3
                 ? "bg-primary text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:bg-primary/90"
                 : "bg-white/10 text-white/40 cursor-not-allowed"
             }`}
