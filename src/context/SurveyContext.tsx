@@ -2,6 +2,28 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
+const LS_KEY = "survey_progress";
+
+function loadFromStorage<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return key in parsed ? parsed[key] : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function saveToStorage(updates: Record<string, unknown>) {
+  if (typeof window === "undefined") return;
+  try {
+    const existing = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+    localStorage.setItem(LS_KEY, JSON.stringify({ ...existing, ...updates }));
+  } catch {}
+}
+
 interface SurveyContextType {
   step: number;
   setStep: (step: number) => void;
@@ -50,76 +72,80 @@ interface SurveyContextType {
 const SurveyContext = createContext<SurveyContextType | undefined>(undefined);
 
 export function SurveyProvider({ children }: { children: ReactNode }) {
-  const [step, setStep] = useState(0);
-  const [responseId, setResponseId] = useState<string | null>(null);
-  const [userName, setUserName] = useState("");
-  const [mbtiType, setMbtiType] = useState("");
-  const [topGenres, setTopGenres] = useState<string[]>([]);
-  const [platform, setPlatform] = useState("");
-  const [gamingHours, setGamingHours] = useState("");
-  const [premiumnessAvg, setPremiumnessAvg] = useState(0);
-  const [laptopPrice, setLaptopPrice] = useState("");
+  const [step, _setStep] = useState<number>(() => loadFromStorage("step", 0));
+  const [responseId, _setResponseId] = useState<string | null>(() => loadFromStorage("responseId", null));
+  const [userName, _setUserName] = useState<string>(() => loadFromStorage("userName", ""));
+  const [mbtiType, _setMbtiType] = useState<string>(() => loadFromStorage("mbtiType", ""));
+  const [topGenres, _setTopGenres] = useState<string[]>(() => loadFromStorage("topGenres", []));
+  const [platform, _setPlatform] = useState<string>(() => loadFromStorage("platform", ""));
+  const [gamingHours, _setGamingHours] = useState<string>(() => loadFromStorage("gamingHours", ""));
+  const [premiumnessAvg, _setPremiumnessAvg] = useState<number>(() => loadFromStorage("premiumnessAvg", 0));
+  const [laptopPrice, _setLaptopPrice] = useState<string>(() => loadFromStorage("laptopPrice", ""));
+  const [age, _setAge] = useState<string>(() => loadFromStorage("age", ""));
+  const [gender, _setGender] = useState<string>(() => loadFromStorage("gender", ""));
+  const [education, _setEducation] = useState<string>(() => loadFromStorage("education", ""));
+  const [gamesSelected, _setGamesSelected] = useState<number[]>(() => loadFromStorage("gamesSelected", []));
+  const [genreScores, _setGenreScores] = useState<Record<string, number>>(() => loadFromStorage("genreScores", {}));
+  const [traitScores, _setTraitScores] = useState<Record<string, number>>(() => loadFromStorage("traitScores", {}));
+  const [gamingMotivation, _setGamingMotivation] = useState<string[]>(() => loadFromStorage("gamingMotivation", []));
+  const [seriesSelected, _setSeriesSelected] = useState<string[]>(() => loadFromStorage("seriesSelected", []));
+  const [booksSelected, _setBooksSelected] = useState<string[]>(() => loadFromStorage("booksSelected", []));
+  const [hobbiesSelected, _setHobbiesSelected] = useState<string[]>(() => loadFromStorage("hobbiesSelected", []));
+  const [startTime, _setStartTime] = useState<number | null>(() => loadFromStorage("startTime", null));
 
-  const [age, setAge] = useState("");
-  const [gender, setGender] = useState("");
-  const [education, setEducation] = useState("");
-  const [gamesSelected, setGamesSelected] = useState<number[]>([]);
-  const [genreScores, setGenreScores] = useState<Record<string, number>>({});
-  const [traitScores, setTraitScores] = useState<Record<string, number>>({});
-  const [gamingMotivation, setGamingMotivation] = useState<string[]>([]);
-  const [seriesSelected, setSeriesSelected] = useState<string[]>([]);
-  const [booksSelected, setBooksSelected] = useState<string[]>([]);
-  const [hobbiesSelected, setHobbiesSelected] = useState<string[]>([]);
-  const [startTime, setStartTime] = useState<number | null>(null);
+  // Wrapped setters — persist every change, clear all on step 9
+  const setStep = (v: number) => {
+    _setStep(v);
+    if (v === 9) localStorage.removeItem(LS_KEY);
+    else saveToStorage({ step: v });
+  };
+  const setResponseId = (v: string | null) => { _setResponseId(v); saveToStorage({ responseId: v }); };
+  const setUserName = (v: string) => { _setUserName(v); saveToStorage({ userName: v }); };
+  const setMbtiType = (v: string) => { _setMbtiType(v); saveToStorage({ mbtiType: v }); };
+  const setTopGenres = (v: string[]) => { _setTopGenres(v); saveToStorage({ topGenres: v }); };
+  const setPlatform = (v: string) => { _setPlatform(v); saveToStorage({ platform: v }); };
+  const setGamingHours = (v: string) => { _setGamingHours(v); saveToStorage({ gamingHours: v }); };
+  const setPremiumnessAvg = (v: number) => { _setPremiumnessAvg(v); saveToStorage({ premiumnessAvg: v }); };
+  const setLaptopPrice = (v: string) => { _setLaptopPrice(v); saveToStorage({ laptopPrice: v }); };
+  const setAge = (v: string) => { _setAge(v); saveToStorage({ age: v }); };
+  const setGender = (v: string) => { _setGender(v); saveToStorage({ gender: v }); };
+  const setEducation = (v: string) => { _setEducation(v); saveToStorage({ education: v }); };
+  const setGamesSelected = (v: number[]) => { _setGamesSelected(v); saveToStorage({ gamesSelected: v }); };
+  const setGenreScores = (v: Record<string, number>) => { _setGenreScores(v); saveToStorage({ genreScores: v }); };
+  const setTraitScores = (v: Record<string, number>) => { _setTraitScores(v); saveToStorage({ traitScores: v }); };
+  const setGamingMotivation = (v: string[]) => { _setGamingMotivation(v); saveToStorage({ gamingMotivation: v }); };
+  const setSeriesSelected = (v: string[]) => { _setSeriesSelected(v); saveToStorage({ seriesSelected: v }); };
+  const setBooksSelected = (v: string[]) => { _setBooksSelected(v); saveToStorage({ booksSelected: v }); };
+  const setHobbiesSelected = (v: string[]) => { _setHobbiesSelected(v); saveToStorage({ hobbiesSelected: v }); };
+  const setStartTime = (v: number | null) => { _setStartTime(v); saveToStorage({ startTime: v }); };
 
-  const nextStep = () => setStep((s) => Math.min(s + 1, 9));
-  const prevStep = () => setStep((s) => Math.max(s - 1, 0));
+  const nextStep = () => setStep(Math.min(step + 1, 9));
+  const prevStep = () => setStep(Math.max(step - 1, 0));
 
   return (
     <SurveyContext.Provider
       value={{
-        step,
-        setStep,
-        responseId,
-        setResponseId,
-        userName,
-        setUserName,
-        mbtiType,
-        setMbtiType,
-        topGenres,
-        setTopGenres,
-        platform,
-        setPlatform,
-        gamingHours,
-        setGamingHours,
-        premiumnessAvg,
-        setPremiumnessAvg,
-        laptopPrice,
-        setLaptopPrice,
-        age,
-        setAge,
-        gender,
-        setGender,
-        education,
-        setEducation,
-        gamesSelected,
-        setGamesSelected,
-        genreScores,
-        setGenreScores,
-        traitScores,
-        setTraitScores,
-        gamingMotivation,
-        setGamingMotivation,
-        seriesSelected,
-        setSeriesSelected,
-        booksSelected,
-        setBooksSelected,
-        hobbiesSelected,
-        setHobbiesSelected,
-        startTime,
-        setStartTime,
-        nextStep,
-        prevStep,
+        step, setStep,
+        responseId, setResponseId,
+        userName, setUserName,
+        mbtiType, setMbtiType,
+        topGenres, setTopGenres,
+        platform, setPlatform,
+        gamingHours, setGamingHours,
+        premiumnessAvg, setPremiumnessAvg,
+        laptopPrice, setLaptopPrice,
+        age, setAge,
+        gender, setGender,
+        education, setEducation,
+        gamesSelected, setGamesSelected,
+        genreScores, setGenreScores,
+        traitScores, setTraitScores,
+        gamingMotivation, setGamingMotivation,
+        seriesSelected, setSeriesSelected,
+        booksSelected, setBooksSelected,
+        hobbiesSelected, setHobbiesSelected,
+        startTime, setStartTime,
+        nextStep, prevStep,
       }}
     >
       {children}

@@ -51,20 +51,41 @@ export default function SurveyContainer() {
         </div>
       )}
 
-      {/* Stepper Dots (only active in middle steps) */}
+      {/* Stepper Dots — full bar on desktop, compact pill on mobile */}
       {step > 0 && step < 9 && (
-        <div className="absolute top-6 left-0 w-full hidden md:flex justify-center z-40">
-          <div className="flex items-center gap-2 max-w-3xl px-4 w-full">
-            {[1,2,3,4,5,6,7,8].map((idx) => (
-              <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
-                <div className={`h-2 w-full rounded-full transition-all duration-500 box-glow ${step >= idx ? 'bg-primary shadow-[0_0_10px_var(--color-primary)]' : 'bg-white/10'}`} />
-                <span className={`text-[10px] font-bold uppercase transition-colors ${step >= idx ? 'text-primary' : 'text-white/40'}`}>
-                   {stepNames[idx]}
-                </span>
+        <>
+          {/* Mobile: compact current step badge */}
+          <div className="absolute top-4 left-0 w-full flex md:hidden justify-center z-40 px-4">
+            <div className="flex items-center gap-2 bg-black/60 border border-primary/30 backdrop-blur-md rounded-full px-4 py-1.5">
+              <div className="flex gap-1">
+                {[1,2,3,4,5,6,7,8].map((idx) => (
+                  <div
+                    key={idx}
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${step >= idx ? 'bg-primary shadow-[0_0_6px_var(--color-primary)]' : 'bg-white/20'}`}
+                  />
+                ))}
               </div>
-            ))}
+              <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                {stepNames[step]}
+              </span>
+              <span className="text-[10px] font-mono text-white/40">{step}/8</span>
+            </div>
           </div>
-        </div>
+
+          {/* Desktop: full stepper bar */}
+          <div className="absolute top-6 left-0 w-full hidden md:flex justify-center z-40">
+            <div className="flex items-center gap-2 max-w-3xl px-4 w-full">
+              {[1,2,3,4,5,6,7,8].map((idx) => (
+                <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
+                  <div className={`h-2 w-full rounded-full transition-all duration-500 box-glow ${step >= idx ? 'bg-primary shadow-[0_0_10px_var(--color-primary)]' : 'bg-white/10'}`} />
+                  <span className={`text-[10px] font-bold uppercase transition-colors ${step >= idx ? 'text-primary' : 'text-white/40'}`}>
+                     {stepNames[idx]}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       <div className={`flex-grow w-full flex flex-col justify-center min-h-[100dvh] relative z-10 ${step > 0 && step < 9 ? 'max-w-5xl mx-auto px-4 md:px-6 py-12 md:py-16' : ''}`}>

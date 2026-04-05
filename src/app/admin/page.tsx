@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 
 const CORRECT_PIN = "9999";
+const SESSION_KEY = "admin_authed";
 
 export default function AdminPage() {
   const [pin, setPin] = useState(["", "", "", ""]);
@@ -12,11 +13,18 @@ export default function AdminPage() {
   const [error, setError] = useState(false);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Restore auth from sessionStorage on mount (survives refresh, not new tab)
   useEffect(() => {
-    // Check if fully typed
+    if (typeof window !== "undefined" && sessionStorage.getItem(SESSION_KEY) === "1") {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  useEffect(() => {
     const currentPin = pin.join("");
     if (currentPin.length === 4) {
       if (currentPin === CORRECT_PIN) {
+        sessionStorage.setItem(SESSION_KEY, "1");
         setIsAuthenticated(true);
       } else {
         setError(true);
@@ -31,12 +39,9 @@ export default function AdminPage() {
 
   const handleChange = (index: number, value: string) => {
     if (!/^[0-9]?$/.test(value)) return;
-    
     const newPin = [...pin];
     newPin[index] = value;
     setPin(newPin);
-
-    // Auto focus next
     if (value && index < 3) {
       inputsRef.current[index + 1]?.focus();
     }
@@ -48,8 +53,14 @@ export default function AdminPage() {
     }
   };
 
+  const handleExit = () => {
+    // Clear session so next visit to /admin requires PIN again
+    sessionStorage.removeItem(SESSION_KEY);
+    window.location.href = "/";
+  };
+
   if (isAuthenticated) {
-    return <AdminDashboard />;
+    return <AdminDashboard onExit={handleExit} />;
   }
 
   return (
