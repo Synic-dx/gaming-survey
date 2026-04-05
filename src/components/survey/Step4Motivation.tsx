@@ -22,14 +22,14 @@ export default function Step4Motivation() {
     if (selected.includes(motive)) {
       setSelected(selected.filter((s) => s !== motive));
     } else {
-      if (selected.length < 2) {
+      if (selected.length < 3) {
         setSelected([...selected, motive]);
       }
     }
   };
 
   const handleNext = async () => {
-    if (selected.length === 0) return; // Must have at least 1, max 2
+    if (selected.length === 0) return; // Must have at least 1, max 3
 
     setIsLoading(true);
     setTimeout(() => {
@@ -45,7 +45,7 @@ export default function Step4Motivation() {
         <h2 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
           Why do you play?
         </h2>
-        <p className="text-white/60 text-lg">Pick your top 2 reasons.</p>
+        <p className="text-white/60 text-lg">Pick your top 3 reasons.</p>
       </div>
 
       <div className="flex flex-wrap justify-center gap-4 max-w-3xl">
@@ -65,7 +65,7 @@ export default function Step4Motivation() {
                   ? "bg-primary text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] border-transparent"
                   : "bg-white/5 text-white/80 border border-white/10 hover:bg-white/10"
               } ${
-                !isSelected && selected.length >= 2 ? "opacity-50 cursor-not-allowed" : ""
+                !isSelected && selected.length >= 3 ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
               {m}

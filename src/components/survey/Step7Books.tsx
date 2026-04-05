@@ -74,7 +74,7 @@ export default function Step7Books() {
         <h2 className="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent to-primary">
           What do you read?
         </h2>
-        <p className="text-white/60 text-lg">Pick your top 3 to 5. Be honest.</p>
+        <p className="text-white/60 text-lg">Pick your top 1 to 5. Be honest.</p>
       </div>
 
       <div className="flex flex-col gap-3 w-full">
@@ -109,7 +109,7 @@ export default function Step7Books() {
 
       <div className="fixed bottom-0 left-0 w-full bg-background/90 backdrop-blur-md border-t border-white/10 p-4 md:p-6 flex items-center justify-between z-10">
          <div className="text-sm md:text-base font-medium pl-2 md:pl-8">
-          <span className={selected.length >= 3 || selected.includes(NO_READ_OPTION) ? "text-accent" : "text-white/60"}>
+          <span className={selected.length >= 1 || selected.includes(NO_READ_OPTION) ? "text-accent" : "text-white/60"}>
             {selected.length}
           </span>
           <span className="text-white/60"> / 5 selected (Min 1, Up to 5)</span>

@@ -56,7 +56,7 @@ export default function Step6Series() {
     <div className="flex flex-col items-center max-w-3xl mx-auto space-y-10 w-full py-10 pb-32">
       <div className="text-center space-y-4">
         <h2 className="text-3xl md:text-5xl font-bold">What do you binge?</h2>
-        <p className="text-white/60 text-lg">Pick your top 3 to 5 favorite genres.</p>
+        <p className="text-white/60 text-lg">Pick your top 1 to 5 favorite genres.</p>
       </div>
 
       <div className="flex flex-col gap-3 w-full">
@@ -90,7 +90,7 @@ export default function Step6Series() {
 
       <div className="fixed bottom-0 left-0 w-full bg-background/90 backdrop-blur-md border-t border-white/10 p-4 md:p-6 flex items-center justify-between z-10">
          <div className="text-sm md:text-base font-medium pl-2 md:pl-8">
-          <span className={selected.length >= 3 ? "text-primary" : "text-white/60"}>
+          <span className={selected.length >= 1 ? "text-primary" : "text-white/60"}>
             {selected.length}
           </span>
           <span className="text-white/60"> / 5 selected (Min 1, Up to 5)</span>

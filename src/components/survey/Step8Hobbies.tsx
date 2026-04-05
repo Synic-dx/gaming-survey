@@ -80,7 +80,7 @@ export default function Step8Hobbies() {
   };
 
   const handleNext = async () => {
-    if (selected.length < 3) return;
+    if (selected.length < 1) return;
     setIsLoading(true);
     try {
       if (responseId) {
@@ -103,7 +103,7 @@ export default function Step8Hobbies() {
     <div className="flex flex-col items-center max-w-4xl mx-auto space-y-10 w-full py-10 pb-32">
        <div className="text-center space-y-4">
         <h2 className="text-3xl md:text-5xl font-bold">What do you actually do IRL?</h2>
-        <p className="text-white/60 text-lg">Pick your top 3 to 10 hobbies.</p>
+        <p className="text-white/60 text-lg">Pick your top 1 to 10 hobbies.</p>
       </div>
 
       <div className="flex flex-col w-full gap-4">
@@ -170,17 +170,17 @@ export default function Step8Hobbies() {
 
       <div className="fixed bottom-0 left-0 w-full bg-background/90 backdrop-blur-md border-t border-white/10 p-4 md:p-6 flex items-center justify-between z-10">
          <div className="text-sm md:text-base font-medium pl-2 md:pl-8">
-          <span className={selected.length >= 3 ? "text-primary" : "text-white/60"}>
+          <span className={selected.length >= 1 ? "text-primary" : "text-white/60"}>
             {selected.length}
           </span>
-          <span className="text-white/60"> / 10 selected (Min 3, Up to 10)</span>
+          <span className="text-white/60"> / 10 selected (Min 1, Up to 10)</span>
         </div>
         <div className="pr-2 md:pr-8">
           <motion.button
             onClick={handleNext}
-            disabled={selected.length < 3 || isLoading}
+            disabled={selected.length < 1 || isLoading}
             className={`px-8 py-3 rounded-full font-bold text-xl transition-colors ${
-              selected.length >= 3
+              selected.length >= 1
                 ? "bg-primary text-white shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:bg-primary/90"
                 : "bg-white/10 text-white/40 cursor-not-allowed"
             }`}
