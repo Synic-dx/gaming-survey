@@ -30,11 +30,12 @@ Hobbies: ${hobbiesSelected?.join(", ")}
 Books: ${booksSelected?.join(", ")}
 Series: ${seriesSelected?.join(", ")}
 
-Write a fun, slightly analytical summary linking their gaming choices to their real-life hobbies and entertainment.
-Your heading MUST be either "You prove our Hypothesis!" if their choices align across categories in a predictable way (e.g., strategy games + logic hobbies) OR "You disprove our Hypothesis!" if they are wild and varied.
-Explain your reasoning with complete metrics from their choices.
-Tone: Post-modern Cyberpunk AI analyzing a subject. Focus sharply on correlation.
-Keep it strictly under 200 words. Format with simple paragraphs.`;
+Write a simple, conversational summary explaining the linkages between their gaming choices and their real-life hobbies or entertainment.
+Start with an <h3> heading that says either "You prove our Hypothesis!" if their choices align across categories in a predictable way, OR "You disprove our Hypothesis!" if they are wild and varied.
+Explain your reasoning using their specific choices.
+Tone: Friendly, simple, conversational, and direct. Tone down the dense AI language.
+Keep it under 200 words.
+Format the output ENTIRELY as clean HTML using only <h3>, <p>, <ul>, <li>, and <strong>. Do NOT use any Markdown (like **, #, etc.), and do NOT wrap the output in a markdown code block (\`\`\`html). Output strictly the raw HTML.`;
           
           const response = await openai.chat.completions.create({
             model: "gpt-4o-mini",
@@ -145,11 +146,10 @@ Keep it strictly under 200 words. Format with simple paragraphs.`;
                   RUNNING NEURAL CORRELATION ANALYSIS...
                 </p>
               ) : (
-                aiSummary?.split('\n').map((line, i) => (
-                  <p key={i} className="mb-2 leading-relaxed tracking-wide text-sm md:text-base">
-                    {line}
-                  </p>
-                ))
+                <div 
+                  className="space-y-2 [&>h3]:text-lg md:[&>h3]:text-xl [&>h3]:font-black [&>h3]:text-secondary [&>h3]:mb-4 [&>h3]:uppercase [&>h3]:tracking-widest [&>p]:mb-4 [&>p]:leading-relaxed [&>p]:text-sm md:[&>p]:text-base [&>ul]:list-disc [&>ul]:ml-6 [&>ul]:mb-4 [&>li]:mb-2 [&>li]:text-sm md:[&>li]:text-base [&>strong]:text-primary [&>strong]:font-bold"
+                  dangerouslySetInnerHTML={{ __html: aiSummary || "" }}
+                />
               )}
             </div>
           </div>
