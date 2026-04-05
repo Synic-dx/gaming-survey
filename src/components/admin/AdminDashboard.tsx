@@ -187,6 +187,60 @@ export default function AdminDashboard() {
     });
   };
 
+  const calcCategoricalCorrelations = () => {
+    if (!data || data.length === 0) return [];
+    
+    const uniqueIVs = new Set<string>();
+    const uniqueDVs = new Set<{type: string, val: string}>();
+
+    data.forEach(d => {
+       if (Array.isArray(d.top_genres)) d.top_genres.forEach((g: string) => uniqueIVs.add(g));
+       if (Array.isArray(d.hobbies_selected)) d.hobbies_selected.forEach((h: string) => uniqueDVs.add({type: 'Hobby', val: h}));
+       if (Array.isArray(d.books_selected)) d.books_selected.forEach((b: string) => uniqueDVs.add({type: 'Book', val: b}));
+       if (Array.isArray(d.series_selected)) d.series_selected.forEach((s: string) => uniqueDVs.add({type: 'Series', val: s}));
+    });
+
+    const results: { iv: string, dvType: string, dv: string, r: number, count: number }[] = [];
+
+    Array.from(uniqueIVs).forEach(iv => {
+      Array.from(uniqueDVs).forEach(dvObj => {
+         const dv = dvObj.val;
+         let n11=0, n10=0, n01=0, n00=0;
+         
+         data.forEach(d => {
+           const hasIV = Array.isArray(d.top_genres) && d.top_genres.includes(iv);
+           let hasDV = false;
+           if (dvObj.type === 'Hobby' && Array.isArray(d.hobbies_selected)) hasDV = d.hobbies_selected.includes(dv);
+           if (dvObj.type === 'Book' && Array.isArray(d.books_selected)) hasDV = d.books_selected.includes(dv);
+           if (dvObj.type === 'Series' && Array.isArray(d.series_selected)) hasDV = d.series_selected.includes(dv);
+
+           if (hasIV && hasDV) n11++;
+           else if (hasIV && !hasDV) n10++;
+           else if (!hasIV && hasDV) n01++;
+           else n00++;
+         });
+
+         const n1_ = n11 + n10;
+         const n0_ = n01 + n00;
+         const n_1 = n11 + n01;
+         const n_0 = n10 + n00;
+
+         if (n1_ === 0 || n0_ === 0 || n_1 === 0 || n_0 === 0) return;
+
+         const num = (n11 * n00) - (n10 * n01);
+         const den = Math.sqrt(n1_ * n0_ * n_1 * n_0);
+         const phi = num / den;
+
+         // We want significant matches
+         if (n11 >= 2) {
+           results.push({ iv, dvType: dvObj.type, dv, r: phi, count: n11 });
+         }
+      });
+    });
+
+    return results.sort((a, b) => Math.abs(b.r) - Math.abs(a.r)).slice(0, 9);
+  };
+
   if (isLoading) {
     return <div className="min-h-screen bg-background text-white flex items-center justify-center">Loading Dashboard...</div>;
   }
@@ -277,6 +331,43 @@ export default function AdminDashboard() {
                   </div>
                 );
               })}
+            </div>
+            
+            <h2 className="text-2xl font-black uppercase tracking-widest text-glow-secondary border-b border-secondary/20 pb-4 pt-12">Categorical Profile Linkages (Top 9)</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {calcCategoricalCorrelations().map((corr, idx) => {
+                const isStrong = Math.abs(corr.r) > 0.6;
+                const isModerate = Math.abs(corr.r) > 0.3 && !isStrong;
+                
+                let corrText = "WEAK";
+                if (isStrong) corrText = corr.r > 0 ? "STRONG POSITIVE" : "STRONG NEGATIVE";
+                else if (isModerate) corrText = corr.r > 0 ? "MODERATE POSITIVE" : "MODERATE NEGATIVE";
+                else if (Math.abs(corr.r) > 0.1) corrText = corr.r > 0 ? "WEAK POSITIVE" : "WEAK NEGATIVE";
+
+                return (
+                  <div key={idx} className="bg-white/5 border border-white/10 p-6 rounded-xl space-y-4 relative overflow-hidden group">
+                     <div className={`absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-[50px] pointer-events-none ${isStrong ? 'bg-primary/20' : ''}`} />
+                     <h3 className="font-bold text-sm text-white uppercase tracking-wider">{corr.iv} <br/><span className="text-white/40 text-[10px] break-words">vs</span><br/> <span className="text-primary">{corr.dv}</span> <span className="text-[10px] text-white/30 truncate">({corr.dvType})</span></h3>
+                     
+                     <div className="flex items-end justify-between pt-4 border-t border-white/10">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest text-white/40 mb-1">Phi</p>
+                        <p className={`font-black text-2xl font-mono ${isStrong ? 'text-primary drop-shadow-[0_0_10px_rgba(0,241,255,1)]' : 'text-white'}`}>
+                          {corr.r.toFixed(3)}
+                        </p>
+                      </div>
+                      <span className={`text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded bg-black border ${isStrong ? 'border-primary text-primary' : 'border-white/20 text-white/50'}`}>
+                        {corrText}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+              {calcCategoricalCorrelations().length === 0 && (
+                <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center text-white/50 p-8 border border-dashed border-white/20 rounded-xl">
+                  Not enough valid qualitative category overlaps to map data.
+                </div>
+              )}
             </div>
           </div>
         ) : (
