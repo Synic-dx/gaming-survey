@@ -144,7 +144,7 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
-        {GAME_DATA.map((game, idx) => {
+        {[...GAME_DATA].sort((a, b) => b.premiumness - a.premiumness).map((game, idx) => {
           const isSelected = selectedIds.includes(game.id);
           const colorVar = "var(--color-primary)";
           
