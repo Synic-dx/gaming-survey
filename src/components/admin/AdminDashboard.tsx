@@ -10,6 +10,7 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"database" | "analytics">("database");
+  const [selectedIV, setSelectedIV] = useState<string>("All");
 
   // Sorting
   const [sortCol, setSortCol] = useState("created_at");
@@ -203,6 +204,8 @@ export default function AdminDashboard() {
     const results: { iv: string, dvType: string, dv: string, r: number, count: number }[] = [];
 
     Array.from(uniqueIVs).forEach(iv => {
+      if (selectedIV !== "All" && iv !== selectedIV) return;
+
       Array.from(uniqueDVs).forEach(dvObj => {
          const dv = dvObj.val;
          let n11=0, n10=0, n01=0, n00=0;
@@ -333,7 +336,19 @@ export default function AdminDashboard() {
               })}
             </div>
             
-            <h2 className="text-2xl font-black uppercase tracking-widest text-glow-secondary border-b border-secondary/20 pb-4 pt-12">Categorical Profile Linkages (Top 9)</h2>
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-secondary/20 pb-4 pt-12 gap-4">
+               <h2 className="text-2xl font-black uppercase tracking-widest text-glow-secondary">Categorical Linkages (Top 9)</h2>
+               <select 
+                 value={selectedIV} 
+                 onChange={(e) => setSelectedIV(e.target.value)}
+                 className="bg-black border border-white/20 text-white px-4 py-2 rounded-md font-mono text-xs uppercase tracking-widest outline-none focus:border-primary transition-colors cursor-pointer max-w-[200px] md:max-w-none"
+               >
+                  <option value="All">-- All Gaming Categories --</option>
+                  {Array.from(new Set(data.flatMap(d => Array.isArray(d.top_genres) ? d.top_genres : []))).sort().map(iv => (
+                    <option key={iv} value={iv}>{iv}</option>
+                  ))}
+               </select>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {calcCategoricalCorrelations().map((corr, idx) => {
                 const isStrong = Math.abs(corr.r) > 0.6;
