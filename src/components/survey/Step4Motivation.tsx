@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSurvey } from "@/context/SurveyContext";
 import { motion } from "framer-motion";
 
@@ -27,6 +27,16 @@ export default function Step4Motivation() {
       }
     }
   };
+
+  useEffect(() => {
+    if (selected.length === 3) {
+      const t = setTimeout(() => {
+        handleNext();
+      }, 600);
+      return () => clearTimeout(t);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected.length]);
 
   const handleNext = async () => {
     if (selected.length === 0) return; // Must have at least 1, max 3

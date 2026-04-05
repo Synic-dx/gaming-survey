@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSurvey } from "@/context/SurveyContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
@@ -62,7 +62,7 @@ const groups = [
 export default function Step8Hobbies() {
   const { setStep, responseId } = useSurvey();
   const [selected, setSelected] = useState<string[]>([]);
-  const [openGroups, setOpenGroups] = useState<string[]>([groups[0].name]);
+  const [openGroups, setOpenGroups] = useState<string[]>(groups.map(g => g.name));
   const [isLoading, setIsLoading] = useState(false);
 
   const toggleGroup = (name: string) => {
@@ -78,6 +78,16 @@ export default function Step8Hobbies() {
       if (selected.length < 10) setSelected([...selected, opt]);
     }
   };
+
+  useEffect(() => {
+    if (selected.length === 10) {
+      const t = setTimeout(() => {
+        handleNext();
+      }, 600);
+      return () => clearTimeout(t);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected.length]);
 
   const handleNext = async () => {
     if (selected.length < 1) return;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSurvey } from "@/context/SurveyContext";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
@@ -33,6 +33,16 @@ export default function Step6Series() {
       if (selected.length < 5) setSelected([...selected, opt]);
     }
   };
+
+  useEffect(() => {
+    if (selected.length === 5) {
+      const t = setTimeout(() => {
+        handleNext();
+      }, 600);
+      return () => clearTimeout(t);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected.length]);
 
   const handleNext = async () => {
     if (selected.length === 0) return;
