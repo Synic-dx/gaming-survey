@@ -3,24 +3,114 @@ import { useSurvey } from "@/context/SurveyContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 
-const mbtiDescriptions: Record<string, string> = {
-  INTJ: "The Architect. Deeply strategic and relentlessly independent, you navigate life by logic systems and overarching visions. You excel at long-term planning, anticipating every variable to construct air-tight strategies. In your mind, no problem is unsolvable—it just requires the right algorithm. You don't just participate; you rewrite the rules of engagement.",
-  INTP: "The Logician. Your mind is a perpetual engine of curiosity and abstract analysis. Free from the constraints of conventional thinking, you love to dismantle complex systems just to understand their inner workings. You thrive in theoretical playgrounds, constantly experimenting with unorthodox ideas to uncover fundamental truths others completely miss.",
-  ENTJ: "The Commander. Bold and decisive, you are a natural force of willpower. When you see inefficiency or chaos, your instinct is to immediately organize and conquer it. You thrive on momentum and high-stakes goals, treating life as a grand chessboard where victory is achieved through unwavering focus and ruthless efficiency.",
-  ENTP: "The Debater. Quick-witted, fiercely clever, and deeply energetic, you treat intellectual sparring as a sport. You have an uncanny ability to connect completely unrelated concepts and flip arguments on their head just to test their structural integrity. You thrive on disruption, constantly pushing boundaries to see how systems break and evolve.",
-  INFJ: "The Advocate. Guided by profound idealism and intense empathy, you navigate the world with quiet, unrelenting determination. You possess an intricate understanding of human nature, allowing you to see through surface-level noise to the core truth. You don't just want to exist—you want to push society toward a deeply meaningful vision.",
-  INFP: "The Mediator. Operating from a deep well of internal values and emotional depth, you are uniquely attuned to the beauty and poetry of life. You seek immense personal meaning in everything you do, viewing the world through a deeply imaginative and empathetic lens. To you, life is a quest for strict moral and artistic authenticity.",
-  ENFJ: "The Protagonist. Charismatic and boundlessly inspiring, you naturally draw people into your orbit. You operate heavily on intuition and profound emotional connection, thriving when you can guide others toward their absolute best potential. You are the emotional anchor of any group, seamlessly orchestrating harmony and driving collective, deeply human progress.",
-  ENFP: "The Campaigner. Operating with relentless enthusiasm and boundless free-spirited creativity, you view the universe as an interconnected web of chaotic possibilities. You are fiercely independent but deeply compassionate, constantly jumping between wildly different ideas, people, and experiences. You bring an infectious spark to anything that requires out-of-the-box, visionary thinking.",
-  ISTJ: "The Logistician. Unshakeably reliable and fiercely devoted to logic, you are the foundational pillar of any functioning system. You process the world through historical data and verifiable facts, ensuring that chaos is subdued by order, routine, and discipline. You don't deal in hypotheticals; you deal in execution and iron-clad integrity.",
-  ISFJ: "The Defender. Warm-hearted yet incredibly meticulous, you quietly and diligently maintain the stability of the world around you. You have a highly practical memory, perfectly cataloging details about people and environments to ensure harmony and safety. You are the ultimate protector, shielding your community through relentless, selfless, and structured grace.",
-  ESTJ: "The Executive. You are the embodiment of pure order, structure, and direct execution. You bring immediate clarity to messy situations, establishing distinct rules and delegating tasks with unmatched logistical precision. You value deep tradition, strict honesty, and hard work, expecting the world to operate under a predictable, highly effective ethical standard.",
-  ESFJ: "The Consul. Highly social, deeply attentive, and practically grounded, you are the primary orchestrator of community and connection. You take immense pride in ensuring everyone feels seen, supported, and included within a highly structured environment. Your social intelligence is unparalleled, turning fractured groups into deeply loyal and cohesive units.",
-  ISTP: "The Virtuoso. Operating with a quiet, cool-headed tactical brilliance, you interact with the world through intensely practical, hands-on experimentation. You are a master of tools and mechanics, thriving in environments that require immediate troubleshooting and physical mastery. You don't overthink; you react, adapting to chaotic environments with flawless, instinctual precision.",
-  ISFP: "The Adventurer. Defined by a profound internal aesthetic and sensory awareness, you live entirely in the present moment. You reject rigid structures, preferring to navigate life through fluid, artistic expression and deeply personal exploration. You are an observer, soaking in the immediate beauty of the world without the need to control it.",
-  ESTP: "The Entrepreneur. Pure kinetic energy and tactical observation characterize your completely fearless approach to reality. You thrive exclusively in the immediate moment, making rapid, high-stakes decisions based entirely on the unfolding sensory data around you. You are an adrenaline-fueled problem solver who prefers to build the parachute after jumping out of the plane.",
-  ESFP: "The Entertainer. Spontaneous, fiercely vibrant, and relentlessly fun-loving, you exist to fully experience the absolute maximum joy of life. You have an unmatched tactical awareness of your surroundings and an intense desire to elevate the mood of everyone in the room. Life is a sensory playground, and you are its most dedicated explorer.",
+const mbtiData: Record<string, { title: string; traits: string[]; strengths: string[]; weaknesses: string[] }> = {
+  INTJ: {
+    title: "The Architect",
+    traits: ["Strategic", "Independent", "Analytical", "Decisive", "Private"],
+    strengths: ["Long-term planning", "Pattern recognition", "Self-confidence", "Systems thinking"],
+    weaknesses: ["Can be dismissive of others' feelings", "Overly critical", "Struggles with spontaneity"],
+  },
+  INTP: {
+    title: "The Logician",
+    traits: ["Curious", "Logical", "Inventive", "Detached", "Unconventional"],
+    strengths: ["Abstract thinking", "Problem-solving", "Innovation", "Objectivity"],
+    weaknesses: ["Procrastination", "Insensitive to emotions", "Difficulty following through"],
+  },
+  ENTJ: {
+    title: "The Commander",
+    traits: ["Bold", "Decisive", "Efficient", "Confident", "Ambitious"],
+    strengths: ["Leadership", "Strategic execution", "High energy", "Goal orientation"],
+    weaknesses: ["Impatient", "Domineering", "Can overlook others' feelings"],
+  },
+  ENTP: {
+    title: "The Debater",
+    traits: ["Clever", "Energetic", "Argumentative", "Visionary", "Provocative"],
+    strengths: ["Quick thinking", "Creative ideas", "Debate & persuasion", "Adaptability"],
+    weaknesses: ["Unfocused", "Bores quickly", "Insensitive", "Avoids routine"],
+  },
+  INFJ: {
+    title: "The Advocate",
+    traits: ["Empathetic", "Principled", "Visionary", "Determined", "Private"],
+    strengths: ["Deep insight into others", "Long-term vision", "Creative problem-solving"],
+    weaknesses: ["Perfectionist", "Burns out easily", "Extremely private", "Sensitive to criticism"],
+  },
+  INFP: {
+    title: "The Mediator",
+    traits: ["Idealistic", "Creative", "Empathetic", "Open-minded", "Introspective"],
+    strengths: ["Genuine empathy", "Open-mindedness", "Passion for ideas", "Adaptability"],
+    weaknesses: ["Overly idealistic", "Self-isolating", "Impractical", "Easily stressed"],
+  },
+  ENFJ: {
+    title: "The Protagonist",
+    traits: ["Charismatic", "Altruistic", "Inspiring", "Reliable", "Sensitive"],
+    strengths: ["Empathy", "Communication", "Building people up", "Natural leadership"],
+    weaknesses: ["Overly selfless", "Too idealistic", "Struggles with tough decisions", "People-pleasing"],
+  },
+  ENFP: {
+    title: "The Campaigner",
+    traits: ["Enthusiastic", "Creative", "Sociable", "Optimistic", "Curious"],
+    strengths: ["Imagination", "Empathy", "Energizing others", "Cross-connecting ideas"],
+    weaknesses: ["Poor focus", "Overthinks", "Emotional volatility", "Dislikes routine"],
+  },
+  ISTJ: {
+    title: "The Logistician",
+    traits: ["Responsible", "Thorough", "Dependable", "Methodical", "Reserved"],
+    strengths: ["Reliability", "Attention to detail", "Organization", "Integrity"],
+    weaknesses: ["Rigid", "Judgmental", "Resistant to change", "Struggles with emotional expression"],
+  },
+  ISFJ: {
+    title: "The Defender",
+    traits: ["Warm", "Observant", "Loyal", "Hardworking", "Humble"],
+    strengths: ["Supportiveness", "Patience", "Practical care", "Strong memory for details"],
+    weaknesses: ["Reluctant to change", "Overly self-sacrificing", "Suppresses feelings", "Easily hurt"],
+  },
+  ESTJ: {
+    title: "The Executive",
+    traits: ["Organized", "Direct", "Loyal", "Dedicated", "Traditional"],
+    strengths: ["Project management", "Clear communication", "Decisiveness", "Reliability"],
+    weaknesses: ["Inflexible", "Stubborn", "Uncomfortable with unconventional ideas", "Judgmental"],
+  },
+  ESFJ: {
+    title: "The Consul",
+    traits: ["Caring", "Social", "Popular", "Dutiful", "Sensitive"],
+    strengths: ["Building community", "Cooperative teamwork", "Loyalty", "Practical helpfulness"],
+    weaknesses: ["Needy for approval", "Inflexible", "Vulnerable to criticism", "Neglects own needs"],
+  },
+  ISTP: {
+    title: "The Virtuoso",
+    traits: ["Practical", "Observant", "Logical", "Calm", "Reserved"],
+    strengths: ["Crisis management", "Technical mastery", "Hands-on problem solving", "Adaptability"],
+    weaknesses: ["Commitment issues", "Risk-taking", "Emotionally distant", "Insensitive"],
+  },
+  ISFP: {
+    title: "The Adventurer",
+    traits: ["Gentle", "Sensitive", "Artistic", "Curious", "Unpredictable"],
+    strengths: ["Creativity", "Empathy", "Open-mindedness", "Living in the present"],
+    weaknesses: ["Fiercely independent (resists structure)", "Easily stressed", "Unpredictable", "Avoids conflict"],
+  },
+  ESTP: {
+    title: "The Entrepreneur",
+    traits: ["Bold", "Perceptive", "Energetic", "Sociable", "Direct"],
+    strengths: ["Action under pressure", "Negotiation", "Observational acuity", "Boldness"],
+    weaknesses: ["Impulsive", "Impatient with theory", "Defiant of rules", "Insensitive"],
+  },
+  ESFP: {
+    title: "The Entertainer",
+    traits: ["Spontaneous", "Energetic", "Fun-loving", "Optimistic", "Observant"],
+    strengths: ["Humor", "Engaging others", "Practical resourcefulness", "Optimism"],
+    weaknesses: ["Poor long-term planning", "Easily bored", "Sensitive to criticism", "Unfocused"],
+  },
 };
+
+const renderTags = (items: string[], color: string) => (
+  <div className="flex flex-wrap gap-2">
+    {items.map((item) => (
+      <span key={item} className={`text-[10px] md:text-xs font-bold uppercase tracking-wider px-2 py-1 rounded border ${color}`}>
+        {item}
+      </span>
+    ))}
+  </div>
+);
 
 const questions = [
   { id: "q9", text: "I feel energized around large groups of people and enjoy being the center of attention." },
@@ -140,7 +230,25 @@ export default function Step5Personality() {
           <div className="text-7xl font-black text-glow tracking-widest">
             {mbti}
           </div>
-          <p className="text-lg md:text-xl font-mono text-primary/80 uppercase">[{mbtiDescriptions[mbti]}]</p>
+          <p className="text-base md:text-lg font-bold text-primary uppercase tracking-widest mt-1">
+            {mbtiData[mbti]?.title ?? mbti}
+          </p>
+
+          <div className="space-y-4 mt-4 text-left">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">Traits</p>
+              {renderTags(mbtiData[mbti]?.traits ?? [], "border-white/20 text-white/70 bg-white/5")}
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-primary/60 mb-2">Strengths</p>
+              {renderTags(mbtiData[mbti]?.strengths ?? [], "border-primary/40 text-primary bg-primary/5")}
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-red-400/60 mb-2">Weaknesses</p>
+              {renderTags(mbtiData[mbti]?.weaknesses ?? [], "border-red-500/30 text-red-400 bg-red-500/5")}
+            </div>
+          </div>
+
           <a href="https://www.16personalities.com/" target="_blank" rel="noreferrer" className="inline-block mt-4 text-sm font-mono text-secondary hover:text-white transition-colors">
             {">"} ENGAGE DEEP ANALYSIS AT 16PERSONALITIES.COM {"<"}
           </a>
