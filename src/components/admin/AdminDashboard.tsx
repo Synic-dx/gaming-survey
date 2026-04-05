@@ -9,6 +9,7 @@ export default function AdminDashboard() {
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"database" | "analytics">("database");
 
   // Sorting
   const [sortCol, setSortCol] = useState("created_at");
@@ -152,6 +153,40 @@ export default function AdminDashboard() {
     { key: "created_at", label: "Date" },
   ];
 
+  // Correlation Engine
+  const calcCorrelation = (xList: number[], yList: number[]) => {
+    if (xList.length !== yList.length || xList.length < 2) return 0;
+    const n = xList.length;
+    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+    for (let i = 0; i < n; i++) {
+       sumX += xList[i];
+       sumY += yList[i];
+       sumXY += xList[i] * yList[i];
+       sumX2 += xList[i] * xList[i];
+       sumY2 += yList[i] * yList[i];
+    }
+    const num = (n * sumXY) - (sumX * sumY);
+    const den = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+    if (den === 0) return 0;
+    return num / den;
+  };
+
+  const getNumericArray = (key: string) => {
+    return data.map(d => {
+      if (key === "age") return parseInt(d.age) || 0;
+      if (key === "gaming_hours") {
+        const gh = d.gaming_hours || "";
+        if (gh.includes("Less than 3")) return 1;
+        if (gh.includes("3 to 7")) return 2;
+        if (gh.includes("7 to 14")) return 3;
+        if (gh.includes("14 to 25")) return 4;
+        if (gh.includes("More than 25")) return 5;
+        return 0;
+      }
+      return parseFloat(d[key]) || 0;
+    });
+  };
+
   if (isLoading) {
     return <div className="min-h-screen bg-background text-white flex items-center justify-center">Loading Dashboard...</div>;
   }
@@ -160,14 +195,20 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-[#0a0a0f] text-white p-6 md:p-12 overflow-auto">
       <div className="max-w-[1400px] mx-auto space-y-8">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <h1 className="text-3xl font-bold">Research Dashboard</h1>
-          <button 
-            onClick={handleExport}
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md font-bold shadow-lg transition-colors border border-transparent"
-          >
-            <Download size={20} />
-            Export to XLSX
-          </button>
+          <h1 className="text-3xl font-bold tracking-widest text-glow">Research Dashboard</h1>
+          <div className="flex items-center gap-4">
+            <div className="flex bg-white/5 rounded-lg border border-white/10 p-1">
+               <button onClick={() => setActiveTab('database')} className={`px-4 py-2 rounded-md font-bold text-sm transition-all uppercase tracking-widest ${activeTab === 'database' ? 'bg-primary text-black shadow-[0_0_10px_var(--color-primary)]' : 'text-white/50 hover:text-white'}`}>Database</button>
+               <button onClick={() => setActiveTab('analytics')} className={`px-4 py-2 rounded-md font-bold text-sm transition-all uppercase tracking-widest ${activeTab === 'analytics' ? 'bg-primary text-black shadow-[0_0_10px_var(--color-primary)]' : 'text-white/50 hover:text-white'}`}>Analytics</button>
+             </div>
+            <button 
+              onClick={handleExport}
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-md font-bold transition-colors border border-white/20 uppercase tracking-widest text-xs"
+            >
+              <Download size={16} />
+              Export
+            </button>
+          </div>
         </div>
 
         {/* Stats Bar */}
@@ -186,8 +227,60 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {/* Table */}
-        <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden w-full overflow-x-auto shadow-2xl">
+        {activeTab === 'analytics' ? (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-black uppercase tracking-widest text-glow-secondary border-b border-secondary/20 pb-4">Hypothesis Testing Matrix</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { title: "SES vs Premiumness", x: "socioeconomic_score", y: "premiumness_avg", desc: "Correlation between hardware wealth and playing highly-budgeted AAA games." },
+                { title: "Age vs Premiumness", x: "age", y: "premiumness_avg", desc: "Correlation between age maturity and preference for premium titles." },
+                { title: "Hours vs Premiumness", x: "gaming_hours", y: "premiumness_avg", desc: "Correlation between massive playtime and game cost preference." },
+                { title: "SES vs Hours", x: "socioeconomic_score", y: "gaming_hours", desc: "Correlation between wealth brackets and total hours dedicated to gaming." }
+              ].map(stat => {
+                const xArr = getNumericArray(stat.x);
+                const yArr = getNumericArray(stat.y);
+                
+                // Filter out zeroes/invalid matches
+                const validX: number[] = [];
+                const validY: number[] = [];
+                for(let i=0; i<xArr.length; i++) {
+                  if (xArr[i] !== 0 && yArr[i] !== 0) {
+                    validX.push(xArr[i]); validY.push(yArr[i]);
+                  }
+                }
+                
+                const r = calcCorrelation(validX, validY);
+                const isStrong = Math.abs(r) > 0.6;
+                const isModerate = Math.abs(r) > 0.3 && !isStrong;
+                
+                let corrText = "NEGLIGIBLE";
+                if (isStrong) corrText = r > 0 ? "STRONG POSITIVE" : "STRONG NEGATIVE";
+                else if (isModerate) corrText = r > 0 ? "MODERATE POSITIVE" : "MODERATE NEGATIVE";
+                else if (Math.abs(r) > 0.1) corrText = r > 0 ? "WEAK POSITIVE" : "WEAK NEGATIVE";
+
+                return (
+                  <div key={stat.title} className="bg-white/5 border border-white/10 p-6 rounded-xl space-y-4 hover:border-secondary/50 transition-colors group relative overflow-hidden">
+                    <div className={`absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-[50px] pointer-events-none ${isStrong ? 'bg-primary/20' : ''}`} />
+                    <h3 className="font-bold text-lg text-white uppercase tracking-wider">{stat.title}</h3>
+                    <p className="text-white/40 text-xs font-mono min-h-[3rem]">{stat.desc}</p>
+                    <div className="flex items-end justify-between pt-4 border-t border-white/10">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest text-white/40 mb-1">Pearson (r)</p>
+                        <p className={`font-black text-3xl font-mono ${isStrong ? 'text-primary drop-shadow-[0_0_10px_rgba(0,241,255,1)]' : 'text-white'}`}>
+                          {r.toFixed(3)}
+                        </p>
+                      </div>
+                      <span className={`text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded bg-black border ${isStrong ? 'border-primary text-primary' : 'border-white/20 text-white/50'}`}>
+                        {corrText}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden w-full overflow-x-auto shadow-2xl">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-black/50 text-white/60">
               <tr>
@@ -234,6 +327,7 @@ export default function AdminDashboard() {
             </tbody>
           </table>
         </div>
+        )}
         
         {/* Expanded View */}
         {expandedId && data.find(d => d.id === expandedId) && (() => {
