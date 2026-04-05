@@ -121,7 +121,7 @@ Format the output ENTIRELY as clean HTML using only <h3>, <p>, <ul>, <li>, and <
             UPLOAD COMPLETE, {userName}
           </h1>
           <p className="text-sm md:text-xl font-mono text-primary/80 uppercase tracking-widest">
-            {">"} DATA SUCCESSFULLY WRITTEN // THANK YOU FOR YOUR CONTRIBUTION {"<"}
+            {">"} THANK YOU FOR GIVING US YOUR TIME {"<"}
           </p>
         </div>
 
@@ -140,7 +140,7 @@ Format the output ENTIRELY as clean HTML using only <h3>, <p>, <ul>, <li>, and <
               AI Psycho-Profile Correlation
             </h2>
             
-            <div className="space-y-4 font-mono text-white/80">
+            <div className="space-y-4 font-mono text-white/80 max-h-[50vh] md:max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
               {isGenerating ? (
                 <p className="animate-pulse text-primary font-bold text-center py-6 md:py-10 uppercase tracking-[0.2em] drop-shadow-[0_0_10px_rgba(0,241,255,1)] text-xs md:text-base">
                   RUNNING NEURAL CORRELATION ANALYSIS...
