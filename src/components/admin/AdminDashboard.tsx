@@ -254,6 +254,12 @@ export default function AdminDashboard() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <h1 className="text-3xl font-bold tracking-widest text-glow">Research Dashboard</h1>
           <div className="flex items-center gap-4">
+            <a 
+              href="/" 
+              className="px-4 py-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-md font-bold text-xs transition-all uppercase tracking-widest border border-red-500/30"
+            >
+              Exit
+            </a>
             <div className="flex bg-white/5 rounded-lg border border-white/10 p-1">
                <button onClick={() => setActiveTab('database')} className={`px-4 py-2 rounded-md font-bold text-sm transition-all uppercase tracking-widest ${activeTab === 'database' ? 'bg-primary text-black shadow-[0_0_10px_var(--color-primary)]' : 'text-white/50 hover:text-white'}`}>Database</button>
                <button onClick={() => setActiveTab('analytics')} className={`px-4 py-2 rounded-md font-bold text-sm transition-all uppercase tracking-widest ${activeTab === 'analytics' ? 'bg-primary text-black shadow-[0_0_10px_var(--color-primary)]' : 'text-white/50 hover:text-white'}`}>Analytics</button>
