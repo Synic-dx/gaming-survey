@@ -121,10 +121,10 @@ Keep it strictly under 200 words. Format with simple paragraphs.`;
         className="w-full max-w-2xl space-y-10"
       >
         <div className="space-y-4">
-          <h1 className="text-4xl md:text-6xl font-black text-glow-secondary tracking-widest uppercase">
+          <h1 className="text-3xl md:text-6xl font-black text-glow-secondary tracking-widest uppercase">
             UPLOAD COMPLETE, {userName}
           </h1>
-          <p className="text-xl font-mono text-primary/80 uppercase tracking-widest">
+          <p className="text-sm md:text-xl font-mono text-primary/80 uppercase tracking-widest">
             {">"} DATA SUCCESSFULLY WRITTEN // THANK YOU FOR YOUR CONTRIBUTION {"<"}
           </p>
         </div>
@@ -139,14 +139,14 @@ Keep it strictly under 200 words. Format with simple paragraphs.`;
             </p>
           </div>
         ) : (
-          <div className="glass-panel box-glow p-8 md:p-12 rounded-xl border border-primary/20 shadow-[0_0_40px_rgba(0,241,255,0.15)] max-w-2xl w-full mx-auto space-y-6 text-left">
-            <h2 className="text-2xl font-black uppercase text-glow tracking-widest text-center mb-6 border-b border-primary/20 pb-4">
+          <div className="glass-panel box-glow p-5 md:p-12 rounded-xl border border-primary/20 shadow-[0_0_40px_rgba(0,241,255,0.15)] max-w-2xl w-full mx-auto space-y-4 md:space-y-6 text-left">
+            <h2 className="text-xl md:text-2xl font-black uppercase text-glow tracking-widest text-center mb-4 md:mb-6 border-b border-primary/20 pb-4">
               AI Psycho-Profile Correlation
             </h2>
             
             <div className="space-y-4 font-mono text-white/80">
               {isGenerating ? (
-                <p className="animate-pulse text-primary font-bold text-center py-10 uppercase tracking-[0.2em] drop-shadow-[0_0_10px_rgba(0,241,255,1)]">
+                <p className="animate-pulse text-primary font-bold text-center py-6 md:py-10 uppercase tracking-[0.2em] drop-shadow-[0_0_10px_rgba(0,241,255,1)] text-xs md:text-base">
                   RUNNING NEURAL CORRELATION ANALYSIS...
                 </p>
               ) : (

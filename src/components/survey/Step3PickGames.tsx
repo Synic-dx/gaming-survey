@@ -137,13 +137,13 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
   }
 
   return (
-    <div className="w-full pb-32 space-y-10 relative">
-      <div className="text-center space-y-3">
-        <h2 className="text-3xl md:text-5xl font-black uppercase text-glow tracking-widest">Select Software</h2>
-        <p className="text-primary/80 font-mono text-lg uppercase tracking-widest">Awaiting database connection [MIN: 1]</p>
+    <div className="w-full pb-24 md:pb-32 space-y-8 md:space-y-10 relative">
+      <div className="text-center space-y-2 md:space-y-3">
+        <h2 className="text-2xl md:text-5xl font-black uppercase text-glow tracking-widest">Select Software</h2>
+        <p className="text-primary/80 font-mono text-sm md:text-lg uppercase tracking-widest">Awaiting database connection [MIN: 1]</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
         {GAME_DATA.map((game, idx) => {
           const isSelected = selectedIds.includes(game.id);
           const colorVar = "var(--color-primary)";
@@ -168,9 +168,9 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
               {/* Scanline overlay for glitch variant FX */ }
               <div className="absolute inset-0 pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjIiIGZpbGw9InJnYmEoMCwyNDEsMjU1LDAuMDUpIi8+PC9zdmc+')] mix-blend-overlay opacity-30" />
               
-              <div className="p-4 h-full relative z-10 flex flex-col justify-end min-h-[100px]">
-                <h3 className="font-bold text-sm md:text-base leading-tight drop-shadow-md text-white">{game.name}</h3>
-                <p className="text-[10px] uppercase tracking-wider text-white/50 mt-1 font-mono">{game.platform}</p>
+              <div className="p-3 md:p-4 h-full relative z-10 flex flex-col justify-end min-h-[80px] md:min-h-[100px]">
+                <h3 className="font-bold text-xs md:text-base leading-tight drop-shadow-md text-white">{game.name}</h3>
+                <p className="text-[9px] md:text-[10px] uppercase tracking-wider text-white/50 mt-1 font-mono">{game.platform}</p>
               </div>
 
               {/* Holographic glowing Checkmark */}
@@ -193,9 +193,9 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
       </div>
 
       {/* Cyberpunk Dock footer */}
-      <div className="fixed bottom-0 left-0 w-full glass-panel border-t border-primary/20 p-4 md:p-6 flex items-center justify-between z-50">
-        <div className="text-lg font-black font-mono pl-2 md:pl-8 flex items-center space-x-2">
-          <span className="animate-pulse w-3 h-3 bg-secondary rounded-full inline-block shadow-[0_0_10px_var(--color-secondary)]"></span>
+      <div className="fixed bottom-0 left-0 w-full glass-panel border-t border-primary/20 p-3 md:p-6 flex items-center justify-between z-50">
+        <div className="text-xs md:text-lg font-black font-mono pl-2 md:pl-8 flex items-center space-x-2">
+          <span className="animate-pulse w-2 h-2 md:w-3 md:h-3 bg-secondary rounded-full inline-block shadow-[0_0_10px_var(--color-secondary)]"></span>
           <span className={selectedIds.length >= 1 ? "text-primary text-glow" : "text-white/40"}>
             [ DATA: {selectedIds.length} / 50 ]
           </span>
@@ -207,13 +207,13 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
             disabled={selectedIds.length < 1 || isLoading}
             whileHover={{ scale: selectedIds.length >= 1 ? 1.05 : 1 }}
             whileTap={{ scale: selectedIds.length >= 1 ? 0.95 : 1 }}
-            className={`px-8 py-3 rounded-lg font-black text-lg md:text-xl uppercase tracking-[0.1em] transition-all border-2 ${
+            className={`px-4 md:px-8 py-2 md:py-3 rounded-lg font-black text-xs md:text-xl uppercase tracking-[0.05em] md:tracking-[0.1em] transition-all border-2 ${
               selectedIds.length >= 1
                 ? "bg-primary/10 border-primary text-primary hover:bg-primary/30 shadow-[0_0_20px_rgba(0,241,255,0.4)] text-glow"
                 : "bg-white/5 border-white/10 text-white/30 cursor-not-allowed"
             }`}
           >
-            {isLoading ? "UPLOADING..." : selectedIds.length < 1 ? "AWAITING INPUT" : "CONFIRM"}
+            {isLoading ? "UPLOADING..." : selectedIds.length < 1 ? "WAITING INPUT" : "CONFIRM"}
           </motion.button>
         </div>
       </div>

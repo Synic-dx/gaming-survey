@@ -67,7 +67,7 @@ export default function SurveyContainer() {
         </div>
       )}
 
-      <div className={`flex-grow w-full flex flex-col justify-center min-h-[100dvh] relative z-10 ${step > 0 && step < 9 ? 'max-w-5xl mx-auto px-4 py-16' : ''}`}>
+      <div className={`flex-grow w-full flex flex-col justify-center min-h-[100dvh] relative z-10 ${step > 0 && step < 9 ? 'max-w-5xl mx-auto px-4 md:px-6 py-12 md:py-16' : ''}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
@@ -75,7 +75,7 @@ export default function SurveyContainer() {
             animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, x: -40, filter: "blur(10px)" }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className={`w-full flex-grow flex flex-col justify-center ${step > 0 && step < 9 ? 'glass-panel box-glow p-6 md:p-12 rounded-3xl mt-12 md:mt-24 mb-12 shadow-2xl relative overflow-hidden' : ''}`}
+            className={`w-full flex-grow flex flex-col justify-center ${step > 0 && step < 9 ? 'glass-panel box-glow p-4 sm:p-6 md:p-12 rounded-3xl mt-8 md:mt-24 mb-8 md:mb-12 shadow-2xl relative overflow-hidden' : ''}`}
           >
             {/* Inner Glitch FX for Step Transition */}
             {step > 0 && step < 9 && (

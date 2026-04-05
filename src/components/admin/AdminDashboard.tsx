@@ -236,24 +236,68 @@ export default function AdminDashboard() {
         </div>
         
         {/* Expanded View */}
-        {expandedId && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setExpandedId(null)}>
-            <div className="bg-[#12121e] border border-white/20 shadow-2xl rounded-xl w-full max-w-4xl max-h-[80vh] overflow-y-auto p-8" onClick={(e) => e.stopPropagation()}>
-               <div className="flex justify-between items-center mb-6">
-                 <h2 className="text-2xl font-bold">Details: {data.find(d => d.id === expandedId)?.name}</h2>
-                 <div className="flex items-center gap-6">
-                   <button onClick={() => handleDelete(expandedId, data.find(d => d.id === expandedId)?.name || 'user')} className="text-red-500 hover:text-red-400 font-bold flex items-center gap-2">
-                     <Trash2 size={18} /> Delete
-                   </button>
-                   <button onClick={() => setExpandedId(null)} className="text-white/50 hover:text-white">Close</button>
+        {expandedId && data.find(d => d.id === expandedId) && (() => {
+          const expandedData = data.find(d => d.id === expandedId);
+          
+          const renderValue = (val: any) => {
+            if (Array.isArray(val)) {
+              if (val.length === 0) return "-";
+              return (
+                <div className="flex flex-wrap gap-2">
+                  {val.map((item, i) => (
+                    <span key={i} className="bg-primary/10 text-primary border border-primary/30 px-2 py-1 rounded text-xs shadow-sm font-bold tracking-widest uppercase">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              );
+            }
+            if (typeof val === "object" && val !== null) {
+              return (
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(val).map(([k, v]) => (
+                    <span key={k} className="bg-white/10 border border-white/20 px-2 py-1 rounded text-xs text-white">
+                      <span className="text-secondary font-bold opacity-80 mr-1">{k}:</span>
+                      {String(v)}
+                    </span>
+                  ))}
+                </div>
+              );
+            }
+            if (typeof val === "boolean") return val ? "YES" : "NO";
+            return String(val || "-");
+          };
+
+          return (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setExpandedId(null)}>
+              <div className="bg-[#0a0a0f] border-2 border-primary/20 shadow-[0_0_50px_rgba(0,241,255,0.1)] rounded-2xl w-full max-w-6xl max-h-[85vh] overflow-y-auto p-6 md:p-10" onClick={(e) => e.stopPropagation()}>
+                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-white/10 pb-6 gap-4">
+                   <div>
+                     <h2 className="text-2xl md:text-3xl font-black text-glow tracking-widest uppercase truncate break-all">Target: {expandedData?.name}</h2>
+                     <p className="text-white/40 font-mono text-xs md:text-sm tracking-widest uppercase mt-2">ID: {expandedData?.id}</p>
+                   </div>
+                   <div className="flex items-center gap-4">
+                     <button onClick={() => handleDelete(expandedId, expandedData?.name || 'user')} className="bg-red-500/10 text-red-500 border border-red-500/50 hover:bg-red-500/20 px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors uppercase tracking-widest text-xs">
+                       <Trash2 size={16} /> Purge Record
+                     </button>
+                     <button onClick={() => setExpandedId(null)} className="text-white/50 hover:text-white uppercase tracking-widest font-bold text-sm transition-colors">Close</button>
+                   </div>
                  </div>
-               </div>
-               <pre className="bg-black/50 p-6 rounded-lg overflow-x-auto text-sm text-green-400 font-mono">
-                 {JSON.stringify(data.find(d => d.id === expandedId), null, 2)}
-               </pre>
+                 
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {expandedData && Object.entries(expandedData).filter(([k]) => !['id', 'name'].includes(k)).map(([key, value]) => (
+                      <div key={key} className="bg-white/5 border border-white/10 p-5 rounded-xl space-y-3 hover:border-primary/50 transition-colors group">
+                        <h3 className="text-primary/70 text-xs font-black uppercase tracking-[0.2em] group-hover:text-primary transition-colors">{key.replace(/_/g, ' ')}</h3>
+                        <div className="font-mono text-sm text-white/90">
+                          {key === "created_at" && typeof value === 'string' ? new Date(value).toLocaleString() : renderValue(value)}
+                        </div>
+                      </div>
+                    ))}
+                 </div>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );
