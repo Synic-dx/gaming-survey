@@ -88,12 +88,7 @@ Keep it strictly under 200 words. Format with simple paragraphs.`;
     };
     const laptopScore = scoreMap[laptopPrice] || 1;
     
-    const isNonGamer = gamingHours === "Less than 3" || platform === "I do not play games";
-    
     let socioeconomic_score = laptopScore;
-    if (!isNonGamer) {
-      socioeconomic_score = (laptopScore * 0.8) + (premiumnessAvg * 0.2);
-    }
 
     // Save final state
     if (responseId) {
