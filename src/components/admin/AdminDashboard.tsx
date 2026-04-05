@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import * as XLSX from "xlsx";
-import { Download, ChevronDown, ChevronRight } from "lucide-react";
+import { Download, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 
 export default function AdminDashboard() {
   const [data, setData] = useState<any[]>([]);
@@ -48,6 +48,19 @@ export default function AdminDashboard() {
     if (valA === valB) return 0;
     return sortDesc ? valB - valA : valA - valB;
   });
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to completely delete the response from ${name}?`)) return;
+    
+    // Optimistic UI update
+    setData((prev) => prev.filter(r => r.id !== id));
+    setExpandedId(null);
+    
+    const { error } = await supabase.from('responses').delete().eq('id', id);
+    if (error) {
+      alert("Failed to delete from DB: " + error.message);
+    }
+  };
 
   const handleExport = () => {
     // Format JSON array to flatten items
@@ -228,7 +241,12 @@ export default function AdminDashboard() {
             <div className="bg-[#12121e] border border-white/20 shadow-2xl rounded-xl w-full max-w-4xl max-h-[80vh] overflow-y-auto p-8" onClick={(e) => e.stopPropagation()}>
                <div className="flex justify-between items-center mb-6">
                  <h2 className="text-2xl font-bold">Details: {data.find(d => d.id === expandedId)?.name}</h2>
-                 <button onClick={() => setExpandedId(null)} className="text-white/50 hover:text-white">Close</button>
+                 <div className="flex items-center gap-6">
+                   <button onClick={() => handleDelete(expandedId, data.find(d => d.id === expandedId)?.name || 'user')} className="text-red-500 hover:text-red-400 font-bold flex items-center gap-2">
+                     <Trash2 size={18} /> Delete
+                   </button>
+                   <button onClick={() => setExpandedId(null)} className="text-white/50 hover:text-white">Close</button>
+                 </div>
                </div>
                <pre className="bg-black/50 p-6 rounded-lg overflow-x-auto text-sm text-green-400 font-mono">
                  {JSON.stringify(data.find(d => d.id === expandedId), null, 2)}

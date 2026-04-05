@@ -1,108 +1,76 @@
-import { useState, FormEvent, useEffect } from "react";
+import { useState, FormEvent } from "react";
 import { useSurvey } from "@/context/SurveyContext";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase";
-
-const titleText = "Let's figure out what your gaming says about you.";
 
 export default function Step0Welcome() {
-  const { setStep, setResponseId, setUserName } = useSurvey();
+  const { setStep, setUserName } = useSurvey();
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      setError("Please enter your name.");
+      return;
+    }
 
     setIsLoading(true);
-    setError(null);
-    try {
-      // Create new row
-      const { data, error: dbError } = await supabase
-        .from('responses')
-        .insert([{ name: name.trim() }])
-        .select()
-        .single();
-        
-      if (dbError) throw dbError;
-      
-      if (data) {
-        setResponseId(data.id);
-        setUserName(data.name);
-        setStep(1); // Go to About You
-      } else {
-         // Fallback if no data is returned but no error thrown
-        setUserName(name.trim());
-        setStep(1);
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "Something went wrong.");
-      // Soft fallback for testing offline/without DB configured properly
+    // Name is saved purely locally along with other details. DB insertion is deferred to Step 5.
+    setTimeout(() => {
       setUserName(name.trim());
       setStep(1);
-    } finally {
       setIsLoading(false);
-    }
+    }, 400); // Small psychological loading delay
   };
 
   return (
-    <div className="absolute inset-0 bg-gradient-to-br from-[#020617] via-[#1e1b4b] to-[#2e1065] flex flex-col items-center justify-center p-6 text-center z-50">
-      <div className="w-full max-w-2xl space-y-12">
-        <h1 className="text-4xl md:text-6xl font-bold font-sans tracking-tight min-h-[140px] md:min-h-[160px] flex items-center justify-center">
-          {/* Typewriter effect */}
-          {titleText.split("").map((char, index) => (
-            <motion.span
-              key={index}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              {char === " " ? "\u00A0" : char}
-            </motion.span>
-          ))}
+    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-50 overflow-hidden bg-black">
+      {/* Background Orbs */}
+      <div className="absolute top-1/4 -left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] animate-pulse-glow" />
+      <div className="absolute bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[150px] animate-float" />
+      
+      <div className="w-full relative z-10 px-6 md:px-12 flex flex-col items-center justify-center space-y-12">
+        <h1 className="text-4xl md:text-6xl lg:text-8xl font-semibold tracking-tight leading-tight text-center text-white max-w-[80vw] drop-shadow-[0_0_25px_rgba(0,241,255,0.5)]">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            Let's figure out what your gaming says about you.
+          </motion.div>
         </h1>
 
         <motion.form 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: titleText.length * 0.05 + 0.2 }}
+          transition={{ delay: 0.4, duration: 0.8 }}
           onSubmit={handleSubmit}
-          className="flex flex-col items-center space-y-6"
+          className="flex flex-col items-center space-y-8 w-full max-w-md pt-8"
         >
-          <div className="relative w-full max-w-md">
+          <div className="w-full relative group">
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="What should we call you?"
+              placeholder="What's your name?"
               disabled={isLoading}
-              className="w-full text-center text-xl md:text-2xl bg-white/5 border border-white/20 rounded-full py-4 px-6 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-            />
-            {/* Glowing border animation */}
-            <motion.div
-              className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full -z-10 opacity-0 blur"
-              animate={{ opacity: name.trim() ? 0.3 : 0 }}
-              transition={{ duration: 0.3 }}
+              className="w-full bg-transparent border-b-2 border-white/20 py-4 px-2 text-2xl md:text-3xl text-center text-white placeholder-white/30 focus:outline-none focus:border-primary transition-all font-light"
             />
           </div>
 
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && <p className="text-red-400 text-sm tracking-wide">{error}</p>}
 
           <motion.button
             type="submit"
             disabled={!name.trim() || isLoading}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            animate={{
-              boxShadow: name.trim() ? "0px 0px 20px rgba(59, 130, 246, 0.4)" : "none",
-            }}
-            className={`px-10 py-4 rounded-full font-bold text-lg md:text-xl transition-colors ${
-              name.trim() ? "bg-primary text-white hover:bg-primary/90" : "bg-white/10 text-white/50 cursor-not-allowed"
+            whileHover={name.trim() ? { scale: 1.02 } : {}}
+            whileTap={name.trim() ? { scale: 0.98 } : {}}
+            className={`w-full py-4 rounded-full font-medium text-lg tracking-wide transition-all ${
+              name.trim() ? "bg-primary text-black hover:bg-[#00d4ff] shadow-[0_4px_14px_0_rgba(0,241,255,0.39)] hover:shadow-[0_6px_20px_rgba(0,241,255,0.23)]" : "bg-white/5 text-white/30 cursor-not-allowed"
             }`}
           >
-            {isLoading ? "Loading..." : "Let's Go"}
+            {isLoading ? "Loading..." : "Get Started"}
           </motion.button>
         </motion.form>
       </div>

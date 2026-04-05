@@ -41,23 +41,23 @@ export default function SurveyContainer() {
     <div className="flex-grow flex flex-col w-full h-full relative">
       {/* Progress Bar (Skipped for Step 0 & 9 which are Full Screen distincts) */}
       {step > 0 && step < 9 && (
-        <div className="absolute top-0 left-0 w-full h-1 bg-white/10 z-50">
+        <div className="absolute top-0 left-0 w-full h-1 bg-white/5 z-50">
           <motion.div
-            className="h-full bg-gradient-to-r from-primary to-accent"
+            className="h-full bg-gradient-to-r from-primary via-secondary to-accent shadow-[0_0_15px_var(--color-secondary)]"
             initial={{ width: 0 }}
             animate={{ width: `${(step / 9) * 100}%` }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           />
         </div>
       )}
 
       {/* Stepper Dots (only active in middle steps) */}
       {step > 0 && step < 9 && (
-        <div className="absolute top-4 left-0 w-full hidden md:flex justify-center z-40">
-          <div className="flex items-center gap-2 max-w-2xl px-4 w-full">
+        <div className="absolute top-6 left-0 w-full hidden md:flex justify-center z-40">
+          <div className="flex items-center gap-2 max-w-3xl px-4 w-full">
             {[1,2,3,4,5,6,7,8].map((idx) => (
-              <div key={idx} className="flex-1 flex flex-col items-center gap-1 group">
-                <div className={`h-1.5 w-full rounded-full transition-colors ${step >= idx ? 'bg-primary' : 'bg-white/20'}`} />
+              <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
+                <div className={`h-2 w-full rounded-full transition-all duration-500 box-glow ${step >= idx ? 'bg-primary shadow-[0_0_10px_var(--color-primary)]' : 'bg-white/10'}`} />
                 <span className={`text-[10px] font-bold uppercase transition-colors ${step >= idx ? 'text-primary' : 'text-white/40'}`}>
                    {stepNames[idx]}
                 </span>
@@ -67,16 +67,20 @@ export default function SurveyContainer() {
         </div>
       )}
 
-      <div className="flex-grow w-full max-w-4xl mx-auto px-4 py-8 flex flex-col justify-center min-h-[100dvh]">
+      <div className={`flex-grow w-full flex flex-col justify-center min-h-[100dvh] relative z-10 ${step > 0 && step < 9 ? 'max-w-5xl mx-auto px-4 py-16' : ''}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="w-full flex-grow flex flex-col justify-center"
+            initial={{ opacity: 0, x: 40, filter: "blur(10px)" }}
+            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, x: -40, filter: "blur(10px)" }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className={`w-full flex-grow flex flex-col justify-center ${step > 0 && step < 9 ? 'glass-panel box-glow p-6 md:p-12 rounded-3xl mt-12 md:mt-24 mb-12 shadow-2xl relative overflow-hidden' : ''}`}
           >
+            {/* Inner Glitch FX for Step Transition */}
+            {step > 0 && step < 9 && (
+              <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-primary/5 to-transparent z-[-1] animate-pulse-glow" />
+            )}
             {renderStep()}
           </motion.div>
         </AnimatePresence>

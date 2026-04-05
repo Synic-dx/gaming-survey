@@ -1,23 +1,18 @@
-"use client";
-
 import { useState } from "react";
 import { useSurvey } from "@/context/SurveyContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/lib/supabase";
 import { GAME_DATA } from "@/constants/gameData";
 import OpenAI from "openai";
 import { Check } from "lucide-react";
 
-const premiumnessColors: Record<number, string> = {
-  1: "#22c55e",
-  2: "#3b82f6",
-  3: "#eab308",
-  4: "#f97316",
-  5: "#ef4444",
-};
+// Unused multi-color dynamic system removed in favor of strict dark cyan theme
 
 export default function Step3PickGames() {
-  const { setStep, responseId, setTopGenres, setPremiumnessAvg } = useSurvey();
+  const { 
+    setStep, setTopGenres, setPremiumnessAvg, 
+    setGamesSelected, setGenreScores, setTraitScores 
+  } = useSurvey();
+  
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showReveal, setShowReveal] = useState(false);
@@ -66,7 +61,6 @@ export default function Step3PickGames() {
     let aiGenres = fallbackTopGenres;
 
     try {
-      // Initialize OpenAI conditionally here
       const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
       
       if (apiKey) {
@@ -95,40 +89,21 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
       console.error("OpenAI error, using fallback", err);
     }
 
-    try {
-      if (responseId) {
-        await supabase
-          .from("responses")
-          .update({
-            games_selected: selectedIds,
-            genre_scores: genreScores,
-            trait_scores: traitScores,
-            premiumness_avg: premiumnessAvg,
-            top_genres: aiGenres,
-          })
-          .eq("id", responseId);
-      }
-
-      setTopGenres(aiGenres);
-      setPremiumnessAvg(premiumnessAvg);
-      setTopGenresRevealed(aiGenres);
-      setShowReveal(true);
-    } catch (err) {
-      console.error(err);
-      // Fallback
-      setTopGenres(aiGenres);
-      setPremiumnessAvg(premiumnessAvg);
-      setTopGenresRevealed(aiGenres);
-      setShowReveal(true);
-    } finally {
-      setIsLoading(false);
-    }
+    setGamesSelected(selectedIds);
+    setGenreScores(genreScores);
+    setTraitScores(traitScores);
+    setPremiumnessAvg(premiumnessAvg);
+    setTopGenres(aiGenres);
+    
+    setTopGenresRevealed(aiGenres);
+    setShowReveal(true);
+    setIsLoading(false);
   };
 
   if (showReveal) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-12 text-center py-10">
-        <h2 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-secondary to-primary">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-12 text-center py-10 relative z-10">
+        <h2 className="text-4xl md:text-6xl font-black uppercase tracking-widest text-glow-secondary font-sans">
           Your Gaming DNA
         </h2>
         
@@ -136,16 +111,12 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
           {topGenresRevealed.map((genre, idx) => (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, scale: 0.5, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.5, y: 30, filter: "blur(10px)" }}
+              animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
               transition={{ delay: idx * 0.4, type: "spring", stiffness: 100 }}
-              className="px-6 py-4 rounded-xl text-lg font-bold bg-white/10 border border-white/20 shadow-lg"
-              style={{
-                boxShadow: `0 4px 20px ${Object.values(premiumnessColors)[idx % 5]}40`,
-                borderColor: `${Object.values(premiumnessColors)[idx % 5]}80`
-              }}
+              className="px-6 py-4 rounded-xl text-lg md:text-xl font-bold glass-panel border border-primary/50 text-white shadow-[0_0_15px_rgba(0,241,255,0.4)]"
             >
-              {genre}
+              <span className="text-glow">{genre}</span>
             </motion.div>
           ))}
         </div>
@@ -155,57 +126,64 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
           animate={{ opacity: 1 }}
           transition={{ delay: topGenresRevealed.length * 0.4 + 0.5 }}
           onClick={() => setStep(4)}
-          whileHover={{ scale: 1.05 }}
+          whileHover={{ scale: 1.05, filter: "brightness(1.5)" }}
           whileTap={{ scale: 0.95 }}
-          className="px-10 py-4 bg-primary text-white text-xl font-bold rounded-full shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:bg-primary/90"
+          className="px-12 py-5 bg-transparent border-2 border-primary text-white text-xl font-black tracking-widest uppercase rounded-lg shadow-[0_0_30px_rgba(0,241,255,0.4)] hover:bg-primary/20"
         >
-          Continue
+          Initialize Next Phase
         </motion.button>
       </div>
     );
   }
 
   return (
-    <div className="w-full pb-32 space-y-8">
+    <div className="w-full pb-32 space-y-10 relative">
       <div className="text-center space-y-3">
-        <h2 className="text-3xl md:text-5xl font-bold">Pick your games</h2>
-        <p className="text-white/60 text-lg">Select all the games you play or have enjoyed in the past year.</p>
+        <h2 className="text-3xl md:text-5xl font-black uppercase text-glow tracking-widest">Select Software</h2>
+        <p className="text-primary/80 font-mono text-lg uppercase tracking-widest">Awaiting database connection [MIN: 3]</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {GAME_DATA.map((game) => {
+        {GAME_DATA.map((game, idx) => {
           const isSelected = selectedIds.includes(game.id);
-          const color = premiumnessColors[game.premiumness];
+          const colorVar = "var(--color-primary)";
           
           return (
             <motion.div
               key={game.id}
-              whileHover={{ scale: 1.02 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.02 }}
+              whileHover={{ scale: 1.05, filter: "brightness(1.2)" }}
               whileTap={{ scale: 0.95 }}
               onClick={() => toggleGame(game.id)}
-              className={`relative cursor-pointer rounded-xl overflow-hidden transition-all duration-200 select-none ${
-                isSelected ? "bg-white/10" : "bg-white/5 hover:bg-white/10"
+              className={`relative cursor-pointer rounded-xl overflow-hidden transition-all duration-200 select-none glass-panel border ${
+                isSelected ? "bg-white/10 border-primary" : "border-white/10 hover:border-primary/50"
               }`}
               style={{
-                borderLeft: `4px solid ${color}`,
-                boxShadow: isSelected ? `0 0 15px ${color}60` : "none",
+                boxShadow: isSelected ? `0 0 25px ${colorVar}, inset 0 0 10px ${colorVar}` : "none",
+                borderColor: isSelected ? colorVar : undefined
               }}
             >
-              <div className={`p-4 h-full border border-transparent ${isSelected ? 'border-r-white/20 border-t-white/20 border-b-white/20' : ''} rounded-r-xl`}>
-                <h3 className="font-bold text-sm md:text-base pr-4 leading-tight">{game.name}</h3>
-                <p className="text-xs text-white/50 mt-1">{game.platform}</p>
+              {/* Scanline overlay for glitch variant FX */ }
+              <div className="absolute inset-0 pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjIiIGZpbGw9InJnYmEoMCwyNDEsMjU1LDAuMDUpIi8+PC9zdmc+')] mix-blend-overlay opacity-30" />
+              
+              <div className="p-4 h-full relative z-10 flex flex-col justify-end min-h-[100px]">
+                <h3 className="font-bold text-sm md:text-base leading-tight drop-shadow-md text-white">{game.name}</h3>
+                <p className="text-[10px] uppercase tracking-wider text-white/50 mt-1 font-mono">{game.platform}</p>
               </div>
 
-              {/* Checkmark overlay */}
+              {/* Holographic glowing Checkmark */}
               <AnimatePresence>
                 {isSelected && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.5 }}
-                    className="absolute top-2 right-2 bg-primary rounded-full p-1 shadow-md"
+                    initial={{ opacity: 0, scale: 0.5, rotate: -45 }}
+                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                    exit={{ opacity: 0, scale: 0.5, rotate: 45 }}
+                    className="absolute top-2 right-2 bg-black/60 rounded-full p-1 border border-primary shadow-[0_0_10px_var(--color-primary)] z-20"
+                    style={{ borderColor: colorVar, boxShadow: `0 0 10px ${colorVar}` }}
                   >
-                    <Check size={14} className="text-white" strokeWidth={3} />
+                    <Check size={14} color={colorVar} strokeWidth={4} />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -214,13 +192,13 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
         })}
       </div>
 
-      {/* Sticky footer */}
-      <div className="fixed bottom-0 left-0 w-full bg-background/80 backdrop-blur-md border-t border-white/10 p-4 md:p-6 flex items-center justify-between z-10">
-        <div className="text-lg font-medium pl-2 md:pl-8">
-          <span className={selectedIds.length >= 3 ? "text-primary" : "text-white/60"}>
-            {selectedIds.length}
+      {/* Cyberpunk Dock footer */}
+      <div className="fixed bottom-0 left-0 w-full glass-panel border-t border-primary/20 p-4 md:p-6 flex items-center justify-between z-50">
+        <div className="text-lg font-black font-mono pl-2 md:pl-8 flex items-center space-x-2">
+          <span className="animate-pulse w-3 h-3 bg-secondary rounded-full inline-block shadow-[0_0_10px_var(--color-secondary)]"></span>
+          <span className={selectedIds.length >= 3 ? "text-primary text-glow" : "text-white/40"}>
+            [ DATA: {selectedIds.length} / 50 ]
           </span>
-          <span className="text-white/60"> / 50 selected</span>
         </div>
         
         <div className="pr-2 md:pr-8">
@@ -229,13 +207,13 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
             disabled={selectedIds.length < 3 || isLoading}
             whileHover={{ scale: selectedIds.length >= 3 ? 1.05 : 1 }}
             whileTap={{ scale: selectedIds.length >= 3 ? 0.95 : 1 }}
-            className={`px-8 py-3 rounded-full font-bold text-lg md:text-xl transition-colors ${
+            className={`px-8 py-3 rounded-lg font-black text-lg md:text-xl uppercase tracking-[0.1em] transition-all border-2 ${
               selectedIds.length >= 3
-                ? "bg-primary text-white hover:bg-primary/90 shadow-[0_0_15px_rgba(59,130,246,0.3)]"
-                : "bg-white/10 text-white/40 cursor-not-allowed"
+                ? "bg-primary/10 border-primary text-primary hover:bg-primary/30 shadow-[0_0_20px_rgba(0,241,255,0.4)] text-glow"
+                : "bg-white/5 border-white/10 text-white/30 cursor-not-allowed"
             }`}
           >
-            {isLoading ? "Saving..." : selectedIds.length < 3 ? "Pick 3+" : "Next"}
+            {isLoading ? "UPLOADING..." : selectedIds.length < 3 ? "AWAITING INPUT" : "CONFIRM"}
           </motion.button>
         </div>
       </div>

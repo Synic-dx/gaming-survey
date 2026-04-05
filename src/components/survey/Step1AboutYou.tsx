@@ -24,10 +24,11 @@ const questions = [
     text: "Price range of your primary laptop or PC",
     options: [
       "I do not own one",
-      "Below 50,000",
-      "50,000 to 1,00,000",
-      "1,00,000 to 1,50,000",
-      "Above 1,50,000",
+      "Below 30,000",
+      "30,000 to 60,000",
+      "60,000 to 90,000",
+      "90,000 to 1,20,000",
+      "Above 1,20,000",
     ],
   },
   {
@@ -43,7 +44,7 @@ const questions = [
 ];
 
 export default function Step1AboutYou() {
-  const { setStep, responseId, setPlatform, setLaptopPrice } = useSurvey();
+  const { setStep, setAge, setGender, setEducation, setPlatform, setLaptopPrice } = useSurvey();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -57,49 +58,30 @@ export default function Step1AboutYou() {
     if (!isComplete) return;
 
     setIsLoading(true);
-    try {
-      if (responseId) {
-        await supabase
-          .from("responses")
-          .update({
-            age: answers.age,
-            gender: answers.gender,
-            education: answers.education,
-            laptop_price: answers.laptop_price,
-            platform: answers.platform,
-          })
-          .eq("id", responseId);
-      }
-
-      // Update global state for later use
+    // Simulate slight loading latency
+    setTimeout(() => {
+      setAge(answers.age);
+      setGender(answers.gender);
+      setEducation(answers.education);
       setPlatform(answers.platform);
       setLaptopPrice(answers.laptop_price);
 
-      // Skip logic
       if (answers.platform === "I do not play games") {
-        setStep(5); // Skip gaming questions, go to Personality
+        setStep(5); // Skip to Personality
       } else {
-        setStep(2); // Next step: Gaming Hours
+        setStep(2);
       }
-    } catch (err) {
-      console.error(err);
-      // Fallback: just proceed
-      setPlatform(answers.platform);
-      setLaptopPrice(answers.laptop_price);
-      if (answers.platform === "I do not play games") setStep(5);
-      else setStep(2);
-    } finally {
       setIsLoading(false);
-    }
+    }, 400);
   };
 
   return (
     <div className="w-full py-8 space-y-12">
       <div className="text-center space-y-2">
-        <h2 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-widest text-glow-secondary font-sans">
           About You
         </h2>
-        <p className="text-white/60">Let&apos;s get the boring stuff out of the way.</p>
+        <p className="text-primary/80 font-mono tracking-widest uppercase">Let&apos;s get the boring stuff out of the way.</p>
       </div>
 
       <div className="space-y-10 max-w-2xl mx-auto">
@@ -119,11 +101,12 @@ export default function Step1AboutYou() {
                   <motion.button
                     key={opt}
                     onClick={() => handleSelect(q.id, opt)}
+                    whileHover={{ filter: "brightness(1.5)" }}
                     whileTap={{ scale: 0.95 }}
-                    className={`relative px-5 py-3 rounded-full text-sm md:text-base font-medium transition-all ${
+                    className={`relative px-6 py-3 rounded-md text-sm md:text-base font-black tracking-widest uppercase transition-all border-2 ${
                       isSelected
-                        ? "bg-primary/20 text-white border-2 border-primary"
-                        : "bg-white/5 border-2 border-transparent text-white/70 hover:bg-white/10"
+                        ? "bg-primary/10 text-primary border-primary shadow-[0_0_15px_rgba(0,241,255,0.4)] box-glow text-glow"
+                        : "bg-white/5 border-white/10 text-white/50 hover:border-primary/50"
                     }`}
                   >
                     {opt}
@@ -139,15 +122,15 @@ export default function Step1AboutYou() {
         <motion.button
           onClick={handleSubmit}
           disabled={!isComplete || isLoading}
-          whileHover={{ scale: isComplete ? 1.05 : 1 }}
+          whileHover={{ scale: isComplete ? 1.05 : 1, filter: "brightness(1.2)" }}
           whileTap={{ scale: isComplete ? 0.95 : 1 }}
-          className={`px-12 py-4 rounded-full font-bold text-xl transition-colors ${
+          className={`px-12 py-4 rounded-md font-black uppercase tracking-[0.2em] transition-all border-2 ${
             isComplete
-              ? "bg-primary text-white hover:bg-primary/90 shadow-[0_0_20px_rgba(59,130,246,0.3)]"
-              : "bg-white/10 text-white/40 cursor-not-allowed"
+              ? "bg-primary/10 text-primary border-primary hover:bg-primary/30 shadow-[0_0_25px_rgba(0,241,255,0.5)] text-glow"
+              : "bg-white/5 border-white/10 text-white/30 cursor-not-allowed"
           }`}
         >
-          {isLoading ? "Saving..." : "Next"}
+          {isLoading ? "UPLOADING..." : "PROCEED"}
         </motion.button>
       </div>
     </div>

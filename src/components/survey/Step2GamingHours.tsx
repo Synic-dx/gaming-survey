@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useSurvey } from "@/context/SurveyContext";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase";
 
 const options = ["Less than 3", "3 to 7", "7 to 15", "15 to 25", "More than 25"];
 
 export default function Step2GamingHours() {
-  const { setStep, responseId, setGamingHours } = useSurvey();
+  const { setStep, setGamingHours } = useSurvey();
   const [selected, setSelected] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -14,22 +13,11 @@ export default function Step2GamingHours() {
     if (!selected) return;
 
     setIsLoading(true);
-    try {
-      if (responseId) {
-        await supabase
-          .from("responses")
-          .update({ gaming_hours: selected })
-          .eq("id", responseId);
-      }
+    setTimeout(() => {
       setGamingHours(selected);
       setStep(3); // Go to Game Selection
-    } catch (err) {
-      console.error(err);
-      setGamingHours(selected);
-      setStep(3);
-    } finally {
       setIsLoading(false);
-    }
+    }, 400);
   };
 
   return (

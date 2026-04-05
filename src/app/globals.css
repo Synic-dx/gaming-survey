@@ -1,15 +1,19 @@
 @import "tailwindcss";
 
 @theme {
-    --color-background: #0a0a0f;
-    --color-primary: #3b82f6; /* blue */
-    --color-secondary: #8b5cf6; /* purple */
-    --color-accent: #10b981; /* emerald */
-    --color-premium-1: #22c55e;
-    --color-premium-2: #3b82f6;
-    --color-premium-3: #eab308;
-    --color-premium-4: #f97316;
-    --color-premium-5: #ef4444;
+    --color-background: #000000;
+    --color-surface: #000000;
+    --color-primary: #00f1ff; /* cyber cyan */
+    --color-secondary: #00ccff; /* deep cyan */
+    --color-accent: #00ffff; /* pure cyan */
+    --color-premium-1: #007799;
+    --color-premium-2: #0099cc;
+    --color-premium-3: #00bbff;
+    --color-premium-4: #00ddff;
+    --color-premium-5: #00ffff;
+    --animate-float: float 6s ease-in-out infinite;
+    --animate-pulse-glow: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    --animate-grid-pan: grid-pan 20s linear infinite;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -18,25 +22,68 @@
   body {
     background-color: var(--color-background);
     color: #ffffff;
-    /* subtle gradient shift */
-    background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.05), transparent 25%),
-                      radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.05), transparent 25%);
+    /* Cyber grid + vignette */
+    background-image: 
+      radial-gradient(circle at center, transparent 0%, #000000 80%),
+      linear-gradient(to right, rgba(0, 241, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 241, 255, 0.05) 1px, transparent 1px);
+    background-size: 100% 100%, 60px 60px, 60px 60px;
+    background-position: center center;
     background-attachment: fixed;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 }
 
-/* Custom scrollbar to keep it looking clean */
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 10px var(--color-primary), 0 0 20px var(--color-primary);
+  }
+  .text-glow-secondary {
+    text-shadow: 0 0 10px var(--color-secondary), 0 0 20px var(--color-secondary);
+  }
+  .box-glow {
+    box-shadow: 0 0 15px rgba(0, 241, 255, 0.2), inset 0 0 10px rgba(0, 241, 255, 0.1);
+  }
+  .box-glow-active {
+    box-shadow: 0 0 25px rgba(0, 241, 255, 0.5), inset 0 0 15px rgba(0, 241, 255, 0.3);
+  }
+  .glass-panel {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 241, 255, 0.15);
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; filter: brightness(1); }
+  50% { opacity: 0.7; filter: brightness(1.5); }
+}
+
+@keyframes grid-pan {
+  0% { background-position: center center, 0 0, 0 0; }
+  100% { background-position: center center, 40px 40px, 40px 40px; }
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
   background: var(--color-background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: var(--color-primary);
   border-radius: 4px;
+  box-shadow: 0 0 10px var(--color-primary);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--color-secondary);
+  box-shadow: 0 0 15px var(--color-secondary);
 }

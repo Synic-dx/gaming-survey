@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useSurvey } from "@/context/SurveyContext";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase";
 
 const motives = [
   "To relax and de-stress",
@@ -15,7 +14,7 @@ const motives = [
 ];
 
 export default function Step4Motivation() {
-  const { setStep, responseId } = useSurvey();
+  const { setStep, setGamingMotivation } = useSurvey();
   const [selected, setSelected] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,20 +32,11 @@ export default function Step4Motivation() {
     if (selected.length === 0) return; // Must have at least 1, max 2
 
     setIsLoading(true);
-    try {
-      if (responseId) {
-        await supabase
-          .from("responses")
-          .update({ gaming_motivation: selected })
-          .eq("id", responseId);
-      }
+    setTimeout(() => {
+      setGamingMotivation(selected);
       setStep(5); // Go to Personality
-    } catch (err) {
-      console.error(err);
-      setStep(5);
-    } finally {
       setIsLoading(false);
-    }
+    }, 400);
   };
 
   return (
