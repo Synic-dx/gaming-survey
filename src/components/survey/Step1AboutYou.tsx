@@ -17,7 +17,7 @@ const questions = [
   {
     id: "education",
     text: "Educational Status",
-    options: ["High School", "Undergraduate"],
+    options: ["Currently enrolled in: High School", "Currently enrolled in: Undergraduate Degree"],
   },
   {
     id: "laptop_price",
