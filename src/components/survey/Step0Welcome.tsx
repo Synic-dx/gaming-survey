@@ -1,6 +1,7 @@
 import { useState, FormEvent } from "react";
 import { useSurvey } from "@/context/SurveyContext";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Step0Welcome() {
   const { setStep, setUserName } = useSurvey();
@@ -29,6 +30,19 @@ export default function Step0Welcome() {
       {/* Background Orbs */}
       <div className="absolute top-1/4 -left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] animate-pulse-glow" />
       <div className="absolute bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[150px] animate-float" />
+      
+      {/* Admin Button */}
+      <div className="absolute top-6 right-6 md:top-8 md:right-8 z-[60]">
+        <Link href="/admin">
+          <motion.div 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+            className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs md:text-sm font-mono text-white/50 hover:text-primary hover:border-primary/50 hover:bg-primary/10 transition-all font-bold tracking-widest uppercase cursor-pointer backdrop-blur-md shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+          >
+            Admin (Group 6)
+          </motion.div>
+        </Link>
+      </div>
       
       <div className="w-full relative z-10 px-6 md:px-12 flex flex-col items-center justify-center space-y-12">
         <h1 className="text-4xl md:text-6xl lg:text-8xl font-semibold tracking-tight leading-tight text-center text-white max-w-[80vw] drop-shadow-[0_0_25px_rgba(0,241,255,0.5)]">
