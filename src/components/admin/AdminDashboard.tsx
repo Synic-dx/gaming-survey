@@ -234,8 +234,9 @@ export default function AdminDashboard() {
          const den = Math.sqrt(n1_ * n0_ * n_1 * n_0);
          const phi = num / den;
 
-         // We want significant matches
-         if (n11 >= 2) {
+         // Lower threshold when filtering to a specific IV (fewer data points)
+         const minCoOccurrence = selectedIV === "All" ? 2 : 1;
+         if (n11 >= minCoOccurrence) {
            results.push({ iv, dvType: dvObj.type, dv, r: phi, count: n11 });
          }
       });
