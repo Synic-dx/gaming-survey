@@ -25,7 +25,7 @@ export default function Step3PickGames() {
   };
 
   const handleNext = async () => {
-    if (selectedIds.length < 3) return;
+    if (selectedIds.length < 1) return;
 
     setIsLoading(true);
     
@@ -140,7 +140,7 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
     <div className="w-full pb-32 space-y-10 relative">
       <div className="text-center space-y-3">
         <h2 className="text-3xl md:text-5xl font-black uppercase text-glow tracking-widest">Select Software</h2>
-        <p className="text-primary/80 font-mono text-lg uppercase tracking-widest">Awaiting database connection [MIN: 3]</p>
+        <p className="text-primary/80 font-mono text-lg uppercase tracking-widest">Awaiting database connection [MIN: 1]</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -196,7 +196,7 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
       <div className="fixed bottom-0 left-0 w-full glass-panel border-t border-primary/20 p-4 md:p-6 flex items-center justify-between z-50">
         <div className="text-lg font-black font-mono pl-2 md:pl-8 flex items-center space-x-2">
           <span className="animate-pulse w-3 h-3 bg-secondary rounded-full inline-block shadow-[0_0_10px_var(--color-secondary)]"></span>
-          <span className={selectedIds.length >= 3 ? "text-primary text-glow" : "text-white/40"}>
+          <span className={selectedIds.length >= 1 ? "text-primary text-glow" : "text-white/40"}>
             [ DATA: {selectedIds.length} / 50 ]
           </span>
         </div>
@@ -204,16 +204,16 @@ Return ONLY a JSON array of exactly 5 strings representing their top gaming pers
         <div className="pr-2 md:pr-8">
           <motion.button
             onClick={handleNext}
-            disabled={selectedIds.length < 3 || isLoading}
-            whileHover={{ scale: selectedIds.length >= 3 ? 1.05 : 1 }}
-            whileTap={{ scale: selectedIds.length >= 3 ? 0.95 : 1 }}
+            disabled={selectedIds.length < 1 || isLoading}
+            whileHover={{ scale: selectedIds.length >= 1 ? 1.05 : 1 }}
+            whileTap={{ scale: selectedIds.length >= 1 ? 0.95 : 1 }}
             className={`px-8 py-3 rounded-lg font-black text-lg md:text-xl uppercase tracking-[0.1em] transition-all border-2 ${
-              selectedIds.length >= 3
+              selectedIds.length >= 1
                 ? "bg-primary/10 border-primary text-primary hover:bg-primary/30 shadow-[0_0_20px_rgba(0,241,255,0.4)] text-glow"
                 : "bg-white/5 border-white/10 text-white/30 cursor-not-allowed"
             }`}
           >
-            {isLoading ? "UPLOADING..." : selectedIds.length < 3 ? "AWAITING INPUT" : "CONFIRM"}
+            {isLoading ? "UPLOADING..." : selectedIds.length < 1 ? "AWAITING INPUT" : "CONFIRM"}
           </motion.button>
         </div>
       </div>
