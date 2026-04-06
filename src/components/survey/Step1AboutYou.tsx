@@ -31,20 +31,10 @@ const questions = [
       "Above 1,20,000",
     ],
   },
-  {
-    id: "platform",
-    text: "Primary gaming platform",
-    options: [
-      "Mobile phone",
-      "Laptop / PC",
-      "Console (PS, Xbox, Switch)",
-      "I do not play games",
-    ],
-  },
 ];
 
 export default function Step1AboutYou() {
-  const { setStep, setAge, setGender, setEducation, setPlatform, setLaptopPrice } = useSurvey();
+  const { setStep, setAge, setGender, setEducation, setLaptopPrice } = useSurvey();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -63,14 +53,8 @@ export default function Step1AboutYou() {
       setAge(answers.age);
       setGender(answers.gender);
       setEducation(answers.education);
-      setPlatform(answers.platform);
       setLaptopPrice(answers.laptop_price);
-
-      if (answers.platform === "I do not play games") {
-        setStep(5); // Skip to Personality
-      } else {
-        setStep(2);
-      }
+      setStep(2);
       setIsLoading(false);
     }, 400);
   };

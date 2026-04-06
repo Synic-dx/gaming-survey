@@ -3,12 +3,14 @@ import { useSurvey } from "@/context/SurveyContext";
 import { motion } from "framer-motion";
 
 const gamingOptions = ["I don't play games", "Less than 3", "3 to 7", "7 to 15", "15 to 25", "More than 25"];
+const platformOptions = ["Mobile phone", "Laptop / PC", "Console (PS, Xbox, Switch)"];
 const booksOptions = ["I don't read books", "1–3 books/year", "4–6 books/year", "7–12 books/year", "13–24 books/year", "25+ books/year"];
 const seriesOptions = ["I don't watch series", "1–3 shows/year", "4–6 shows/year", "7–12 shows/year", "13–20 shows/year", "20+ shows/year"];
 
 export default function Step2Details() {
   const { 
     setGamingHours, gamingHours,
+    setPlatform, platform,
     setReadsBooks, readsBooks,
     setWatchesSeries, watchesSeries,
     setHasHobbies, hasHobbies,
@@ -16,6 +18,7 @@ export default function Step2Details() {
   } = useSurvey();
   
   const [localGaming, setLocalGaming] = useState<string | null>(gamingHours || null);
+  const [localPlatform, setLocalPlatform] = useState<string | null>(platform || null);
   const [localBooks, setLocalBooks] = useState<string | null>(readsBooks || null);
   const [localSeries, setLocalSeries] = useState<string | null>(watchesSeries || null);
   const [localHobbies, setLocalHobbies] = useState<boolean | null>(hasHobbies);
@@ -23,11 +26,12 @@ export default function Step2Details() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!localGaming || !localBooks || !localSeries || localHobbies === null) return;
+    if (!localGaming || !localPlatform || !localBooks || !localSeries || localHobbies === null) return;
 
     setIsLoading(true);
     setTimeout(() => {
       setGamingHours(localGaming);
+      setPlatform(localPlatform!);
       setReadsBooks(localBooks);
       setWatchesSeries(localSeries);
       setHasHobbies(localHobbies);
@@ -36,7 +40,7 @@ export default function Step2Details() {
     }, 400);
   };
 
-  const isComplete = localGaming !== null && localBooks !== null && localSeries !== null && localHobbies !== null;
+  const isComplete = localGaming !== null && localPlatform !== null && localBooks !== null && localSeries !== null && localHobbies !== null;
 
   const OptionGrid = ({ 
     options, 
@@ -78,6 +82,12 @@ export default function Step2Details() {
       </div>
 
       <div className="flex flex-col w-full gap-8 text-left">
+        {/* Platform */}
+        <div className="space-y-3">
+          <label className="text-xl font-bold text-white/90 px-2">Primary gaming platform</label>
+          <OptionGrid options={platformOptions} selected={localPlatform} onSelect={setLocalPlatform} cols={3} />
+        </div>
+
         {/* Gaming */}
         <div className="space-y-3">
           <label className="text-xl font-bold text-white/90 px-2">How much do you game? <span className="text-white/40 text-sm font-normal">(Hours/week)</span></label>
