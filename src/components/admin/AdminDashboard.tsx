@@ -211,14 +211,14 @@ export default function AdminDashboard({ onExit }: { onExit?: () => void }) {
     if (!data || data.length === 0) return [];
     
     const uniqueIVs = new Set<string>();
-    const uniqueDVs = new Set<{type: string, val: string}>();
+    const uniqueDVsMap = new Map<string, {type: string, val: string}>();
 
     data.forEach(d => {
        if (d.mbti_type) uniqueIVs.add(d.mbti_type);
-       if (Array.isArray(d.top_genres)) d.top_genres.forEach((g: string) => uniqueDVs.add({type: 'Game', val: g}));
-       if (Array.isArray(d.hobbies_selected)) d.hobbies_selected.forEach((h: string) => uniqueDVs.add({type: 'Hobby', val: h}));
-       if (Array.isArray(d.books_selected)) d.books_selected.forEach((b: string) => uniqueDVs.add({type: 'Book', val: b}));
-       if (Array.isArray(d.series_selected)) d.series_selected.forEach((s: string) => uniqueDVs.add({type: 'Series', val: s}));
+       if (Array.isArray(d.top_genres)) d.top_genres.forEach((g: string) => uniqueDVsMap.set(`Game::${g}`, {type: 'Game', val: g}));
+       if (Array.isArray(d.hobbies_selected)) d.hobbies_selected.forEach((h: string) => uniqueDVsMap.set(`Hobby::${h}`, {type: 'Hobby', val: h}));
+       if (Array.isArray(d.books_selected)) d.books_selected.forEach((b: string) => uniqueDVsMap.set(`Book::${b}`, {type: 'Book', val: b}));
+       if (Array.isArray(d.series_selected)) d.series_selected.forEach((s: string) => uniqueDVsMap.set(`Series::${s}`, {type: 'Series', val: s}));
     });
 
     const results: { iv: string, dvType: string, dv: string, r: number, count: number }[] = [];
@@ -226,7 +226,7 @@ export default function AdminDashboard({ onExit }: { onExit?: () => void }) {
     Array.from(uniqueIVs).forEach(iv => {
       if (selectedIV !== "All" && iv !== selectedIV) return;
 
-      Array.from(uniqueDVs).forEach(dvObj => {
+      Array.from(uniqueDVsMap.values()).forEach((dvObj: {type: string, val: string}) => {
          const dv = dvObj.val;
          let n11=0, n10=0, n01=0, n00=0;
          
