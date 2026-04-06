@@ -4,7 +4,7 @@ import { useSurvey } from "@/context/SurveyContext";
 import { AnimatePresence, motion } from "framer-motion";
 import Step0Welcome from "./Step0Welcome";
 import Step1AboutYou from "./Step1AboutYou";
-import Step2GamingHours from "./Step2GamingHours";
+import Step2Details from "./Step2Details";
 import Step3PickGames from "./Step3PickGames";
 import Step4Motivation from "./Step4Motivation";
 import Step5Personality from "./Step5Personality";
@@ -20,7 +20,7 @@ export default function SurveyContainer() {
     switch (step) {
       case 0: return <Step0Welcome key="step0" />;
       case 1: return <Step1AboutYou key="step1" />;
-      case 2: return <Step2GamingHours key="step2" />;
+      case 2: return <Step2Details key="step2" />;
       case 3: return <Step3PickGames key="step3" />;
       case 4: return <Step4Motivation key="step4" />;
       case 5: return <Step5Personality key="step5" />;
@@ -33,7 +33,7 @@ export default function SurveyContainer() {
   };
 
   const stepNames = [
-    "Welcome", "About You", "Gaming", "Games", "Motivation", 
+    "Welcome", "About You", "Details", "Games", "Motivation", 
     "Personality", "Shows", "Books", "Hobbies", "Done"
   ];
 

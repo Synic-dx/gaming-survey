@@ -24,7 +24,7 @@ const options = [
 ];
 
 export default function Step7Books() {
-  const { setStep, responseId } = useSurvey();
+  const { setStep, responseId, proceedFrom } = useSurvey();
   const [selected, setSelected] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -74,7 +74,7 @@ export default function Step7Books() {
       console.error(e);
     } finally {
       setIsLoading(false);
-      setStep(8);
+      proceedFrom(7);
     }
   };
 

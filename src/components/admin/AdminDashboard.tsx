@@ -18,6 +18,21 @@ export default function AdminDashboard({ onExit }: { onExit?: () => void }) {
 
   useEffect(() => {
     fetchData();
+
+    const channel = supabase
+      .channel("schema-db-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "responses" },
+        (payload) => {
+          fetchData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchData = async () => {
@@ -195,7 +210,8 @@ export default function AdminDashboard({ onExit }: { onExit?: () => void }) {
     const uniqueDVs = new Set<{type: string, val: string}>();
 
     data.forEach(d => {
-       if (Array.isArray(d.top_genres)) d.top_genres.forEach((g: string) => uniqueIVs.add(g));
+       if (d.mbti_type) uniqueIVs.add(d.mbti_type);
+       if (Array.isArray(d.top_genres)) d.top_genres.forEach((g: string) => uniqueDVs.add({type: 'Game', val: g}));
        if (Array.isArray(d.hobbies_selected)) d.hobbies_selected.forEach((h: string) => uniqueDVs.add({type: 'Hobby', val: h}));
        if (Array.isArray(d.books_selected)) d.books_selected.forEach((b: string) => uniqueDVs.add({type: 'Book', val: b}));
        if (Array.isArray(d.series_selected)) d.series_selected.forEach((s: string) => uniqueDVs.add({type: 'Series', val: s}));
@@ -211,8 +227,18 @@ export default function AdminDashboard({ onExit }: { onExit?: () => void }) {
          let n11=0, n10=0, n01=0, n00=0;
          
          data.forEach(d => {
-           const hasIV = Array.isArray(d.top_genres) && d.top_genres.includes(iv);
+           // Exclude respondents who didn't take this specific section
+           let participated = false;
+           if (dvObj.type === 'Game') participated = Array.isArray(d.top_genres) && d.top_genres.length > 0;
+           else if (dvObj.type === 'Hobby') participated = Array.isArray(d.hobbies_selected);
+           else if (dvObj.type === 'Book') participated = Array.isArray(d.books_selected);
+           else if (dvObj.type === 'Series') participated = Array.isArray(d.series_selected);
+
+           if (!participated) return;
+
+           const hasIV = d.mbti_type === iv;
            let hasDV = false;
+           if (dvObj.type === 'Game' && Array.isArray(d.top_genres)) hasDV = d.top_genres.includes(dv);
            if (dvObj.type === 'Hobby' && Array.isArray(d.hobbies_selected)) hasDV = d.hobbies_selected.includes(dv);
            if (dvObj.type === 'Book' && Array.isArray(d.books_selected)) hasDV = d.books_selected.includes(dv);
            if (dvObj.type === 'Series' && Array.isArray(d.series_selected)) hasDV = d.series_selected.includes(dv);
@@ -351,9 +377,9 @@ export default function AdminDashboard({ onExit }: { onExit?: () => void }) {
                  onChange={(e) => setSelectedIV(e.target.value)}
                  className="bg-black border border-white/20 text-white px-4 py-2 rounded-md font-mono text-xs uppercase tracking-widest outline-none focus:border-primary transition-colors cursor-pointer max-w-[200px] md:max-w-none"
                >
-                  <option value="All">-- All Gaming Categories --</option>
-                  {Array.from(new Set(data.flatMap(d => Array.isArray(d.top_genres) ? d.top_genres : []))).sort().map(iv => (
-                    <option key={iv} value={iv}>{iv}</option>
+                  <option value="All">-- All Personalities --</option>
+                  {Array.from(new Set(data.map(d => d.mbti_type).filter(Boolean))).sort().map(iv => (
+                    <option key={String(iv)} value={String(iv)}>{String(iv)}</option>
                   ))}
                </select>
             </div>

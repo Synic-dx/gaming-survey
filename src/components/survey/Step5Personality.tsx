@@ -127,7 +127,7 @@ const questions = [
 
 export default function Step5Personality() {
   const { 
-    setStep, setResponseId, setMbtiType,
+    setStep, setResponseId, setMbtiType, proceedFrom,
     userName, age, gender, education, laptopPrice, platform, gamingHours,
     gamesSelected, premiumnessAvg, topGenres, genreScores, traitScores, gamingMotivation
   } = useSurvey();
@@ -136,18 +136,25 @@ export default function Step5Personality() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [showResults, setShowResults] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const [bigFive, setBigFive] = useState<Record<string, number>>({});
   const [mbti, setMbti] = useState("");
 
-  const currentQ = questions[currentIndex];
+  const currentQ = questions[currentIndex] || questions[questions.length - 1];
 
   const handleSelect = async (score: number) => {
+    if (isTransitioning || isLoading) return;
+    setIsTransitioning(true);
+
     const newAnswers = { ...answers, [currentQ.id]: score };
     setAnswers(newAnswers);
 
     if (currentIndex < questions.length - 1) {
-      setTimeout(() => setCurrentIndex((c) => c + 1), 300);
+      setTimeout(() => {
+        setCurrentIndex((c) => c + 1);
+        setIsTransitioning(false);
+      }, 300);
     } else {
       // Finished all questions, calculate
       setIsLoading(true);
@@ -212,6 +219,7 @@ export default function Step5Personality() {
         setMbti(calcMbti);
         setMbtiType(calcMbti);
         setIsLoading(false);
+        setIsTransitioning(false);
         setShowResults(true);
       }
     }
@@ -285,7 +293,7 @@ export default function Step5Personality() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2.5 }}
-          onClick={() => setStep(6)}
+          onClick={() => proceedFrom(5)}
           whileHover={{ scale: 1.05, filter: "brightness(1.5)" }}
           whileTap={{ scale: 0.95 }}
           className="px-12 py-5 bg-transparent border-2 border-primary text-white text-xl font-black tracking-[0.2em] uppercase rounded-lg shadow-[0_0_30px_rgba(0,241,255,0.4)] hover:bg-primary/20"

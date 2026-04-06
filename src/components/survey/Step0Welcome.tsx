@@ -51,7 +51,7 @@ export default function Step0Welcome() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            Let's figure out what your gaming says about you.
+            Let's find out how strongly your personality shapes your Gaming, Reading, and Binging habits.
           </motion.div>
         </h1>
 
