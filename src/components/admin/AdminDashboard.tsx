@@ -16,37 +16,41 @@ export default function AdminDashboard({ onExit }: { onExit?: () => void }) {
   const [sortCol, setSortCol] = useState("created_at");
   const [sortDesc, setSortDesc] = useState(true);
 
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const { data: responses, error } = await supabase
+        .from("responses")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && responses) {
+        setData(responses);
+      } else if (error) {
+        console.error("fetchData error:", error);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
 
     const channel = supabase
-      .channel("schema-db-changes")
+      .channel("admin-responses-changes")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "responses" },
-        (payload) => {
-          fetchData();
-        }
+        () => { fetchData(); }
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    const { data: responses, error } = await supabase
-      .from("responses")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (!error && responses) {
-      setData(responses);
-    }
-    setIsLoading(false);
-  };
 
   const handleSort = (col: string) => {
     if (sortCol === col) setSortDesc(!sortDesc);
