@@ -45,13 +45,13 @@ export default function Step0Welcome() {
       </div>
       
       <div className="w-full relative z-10 px-4 md:px-12 flex flex-col items-center justify-center space-y-8 md:space-y-12">
-        <h1 className="text-3xl md:text-6xl lg:text-8xl font-semibold tracking-tight leading-tight text-center text-white max-w-[95vw] md:max-w-[80vw] drop-shadow-[0_0_25px_rgba(0,241,255,0.5)]">
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-semibold tracking-tight leading-tight text-center text-white max-w-[95vw] md:max-w-[80vw] drop-shadow-[0_0_25px_rgba(0,241,255,0.5)]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            Let's find out how strongly your personality shapes your Gaming, Reading, and Binging habits.
+            How your personality drives your gaming, reading, and binging.
           </motion.div>
         </h1>
 
