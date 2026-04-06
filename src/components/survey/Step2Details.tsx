@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 
 const gamingOptions = ["I don't play games", "Less than 3", "3 to 7", "7 to 15", "15 to 25", "More than 25"];
 const platformOptions = ["Mobile phone", "Laptop / PC", "Console (PS, Xbox, Switch)"];
-const booksOptions = ["I don't read books", "1–3 books/year", "4–6 books/year", "7–12 books/year", "13–24 books/year", "25+ books/year"];
-const seriesOptions = ["I don't watch series", "1–3 shows/year", "4–6 shows/year", "7–12 shows/year", "13–20 shows/year", "20+ shows/year"];
+const booksOptions = ["I don't read books", "1-3 books/year", "4-6 books/year", "7-12 books/year", "13-24 books/year", "25+ books/year"];
+const seriesOptions = ["I don't watch series", "1-3 shows/year", "4-6 shows/year", "7-12 shows/year", "13-20 shows/year", "20+ shows/year"];
 
 export default function Step2Details() {
   const { 

@@ -72,7 +72,7 @@ export default function Step0Welcome() {
               className="w-full bg-transparent border-b-2 border-white/20 py-3 md:py-4 px-2 text-xl md:text-3xl text-center text-white placeholder-white/30 focus:outline-none focus:border-primary transition-all font-light"
             />
             <p className="mt-3 text-white/30 text-xs md:text-sm text-center tracking-wide">
-              Doesn&apos;t have to be your real name — just for indexing. This survey is fully anonymous.
+              Doesn&apos;t have to be your real name - just for indexing. This survey is fully anonymous.
             </p>
           </div>
 
