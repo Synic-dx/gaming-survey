@@ -27,7 +27,7 @@ export default function AdminDashboard({ onExit }: { onExit?: () => void }) {
       if (!error && responses) {
         setData(responses);
       } else if (error) {
-        console.error("fetchData error:", error);
+        console.error("[Admin] fetchData error:", error);
       }
     } finally {
       setIsLoading(false);

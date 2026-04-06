@@ -17,153 +17,105 @@ if (!supabaseUrl || !supabaseKey || !openaiApiKey) {
 const supabase = createClient(supabaseUrl, supabaseKey);
 const openai = new OpenAI({ apiKey: openaiApiKey });
 
-const seriesOptions = [
-  "Action / Superhero (The Boys, Daredevil, Invincible, The Punisher)",
-  "Thriller / Suspense (Breaking Bad, Better Call Saul, Dark, Narcos, Barry)",
-  "Crime / Mafia (Peaky Blinders, Ozark, Narcos, Mirzapur, Gangs of Wasseypur)",
-  "Political / Power Drama (Succession, House of Cards, Yes Minister, Scam 1992)",
-  "Comedy / Sitcom (The Office, Brooklyn Nine Nine, Friends, Seinfeld, Panchayat)",
-  "Horror (Stranger Things, Haunting of Hill House, Wednesday)",
-  "Sci-Fi (Black Mirror, Westworld, Love Death and Robots, The Expanse)",
-  "Fantasy (Game of Thrones, The Witcher, House of the Dragon, Shadow and Bone)",
-  "Anime (Attack on Titan, Death Note, Naruto, One Piece, Demon Slayer, Jujutsu Kaisen)",
-  "K-Drama / Asian (Squid Game, Crash Landing on You, Parasite)",
-  "Spy / Espionage / Military (The Family Man, Special Ops, Band of Brothers, Homeland)",
-  "Slice of Life / Feel Good (Panchayat, Ted Lasso, Kota Factory, Studio Ghibli)",
-  "Documentary / True Crime (Making a Murderer, Our Planet, Wild Wild Country)",
-  "Drama / Prestige TV (Succession, The Sopranos, Mad Men, Chernobyl, The Crown)",
+// Exact values from the new frontend
+const BOOKS_OPTIONS = [
+  "I don't read books",
+  "1–3 books/year",
+  "4–6 books/year",
+  "7–12 books/year",
+  "13–24 books/year",
+  "25+ books/year",
 ];
 
-const booksOptions = [
-  "Only time I picked a book was for clearing IPMAT VA",
-  "Literary Fiction / Classics (The Kite Runner, A Fine Balance, 1984, Animal Farm, Norwegian Wood, To Kill a Mockingbird, The Great Gatsby)",
-  "Fantasy / Sci-Fi (Harry Potter, Dune, LOTR, Mistborn, Foundation, Hitchhiker's Guide)",
-  "Mystery / Thriller (Da Vinci Code, Agatha Christie, Gone Girl, Sidney Sheldon)",
-  "Dark / Psychological Fiction (Dostoevsky, Kafka, Camus, Notes from Underground, The Stranger, The Trial)",
-  "Comedy / Satire / Wit (Catch-22, Three Men in a Boat, P.G. Wodehouse, Roald Dahl, Douglas Adams)",
-  "Romance (Colleen Hoover, Nicholas Sparks, Jane Austen, Pride and Prejudice)",
-  "Self-Help / Personal Growth (Atomic Habits, Ikigai, Subtle Art, Deep Work)",
-  "Business / Finance / Entrepreneurship (Zero to One, Psychology of Money, Rich Dad Poor Dad)",
-  "Biography / Memoir (Steve Jobs, Wings of Fire, Shoe Dog, Becoming, Born a Crime)",
-  "Manga / Comics / Graphic Novels (One Piece, Naruto, Berserk, Chainsaw Man, Maus)",
-  "History / Philosophy / Science (Sapiens, Thinking Fast and Slow, Meditations, A Brief History of Time)",
-  "Poetry (Rumi, Rupi Kaur, Sylvia Plath, Pablo Neruda, Faiz Ahmed Faiz)",
-  "Children's / Young Adult that you still love (Roald Dahl, Diary of a Wimpy Kid, Percy Jackson, Enid Blyton, Tintin, Ruskin Bond)",
-];
-
-const hobbiesOptions = [
-  "Cricket", "Football / Soccer", "Badminton / Tennis / Table Tennis",
-  "Basketball / Volleyball", "Gym / Weight training / CrossFit",
-  "Running / Jogging / Marathon training", "Swimming", "Yoga / Meditation",
-  "Trekking / Hiking / Camping", "Cycling / Skateboarding",
-  "Martial arts / Boxing / MMA", "Dance (any form)",
-  "Drawing / Painting / Sketching", "Digital art / Graphic design", "Photography",
-  "Videography / Filmmaking / Video editing", "Playing a musical instrument",
-  "Singing / Vocals", "Writing fiction or short stories", "Writing poetry",
-  "Journaling / Diary writing", "Blogging / Newsletter writing",
-  "Calligraphy / Lettering", "Craft / DIY / Origami / Model building", "Cooking / Baking",
-  "Coding / Programming / App development", "Robotics / Electronics / Hardware tinkering",
-  "Debating / MUN / Public speaking", "Quiz / Trivia competitions",
-  "Learning new languages", "Stock market / Investing / Crypto",
-  "Solving puzzles (Rubik's cube, jigsaw, logic puzzles)", "Chess (serious / tournament level)",
-  "Content creation (YouTube, Instagram, Streaming, Podcasting)", "Meme making / Shitposting",
-  "Music production / Beatmaking / DJing", "Curating playlists / Music discovery",
-  "Film analysis / Reviewing shows and movies", "Writing reviews or threads (Reddit, Letterboxd, Goodreads)",
-  "Volunteering / NGO work / Social service", "Event management / College fest organizing",
-  "Student clubs / Societies / Committee work", "Board games / Card games / D&D (offline)",
-  "Hosting or going to house parties / Social gatherings",
-  "Collecting (coins, stamps, sneakers, figures, vintage items, cards)", "Gardening / Plant care",
-  "Pet care / Animal related hobbies", "Astronomy / Stargazing", "Thrifting / Vintage shopping / Fashion curation"
+const SERIES_OPTIONS = [
+  "I don't watch series",
+  "1–3 shows/year",
+  "4–6 shows/year",
+  "7–12 shows/year",
+  "13–20 shows/year",
+  "20+ shows/year",
 ];
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 async function main() {
-  const { data: responses, error } = await supabase.from('responses').select('id, name, top_genres, age, gender, mbti_type, hobbies_selected, books_selected, series_selected, premiumness_avg');
-  
+  const { data: responses, error } = await supabase
+    .from('responses')
+    .select('id, name, age, gender, mbti_type, top_genres, books_selected, series_selected, reads_books_freq, watches_series_freq');
+
   if (error || !responses) {
-    console.error("Failed to fetch responses", error);
+    console.error("Failed to fetch:", error);
     process.exit(1);
   }
 
-  // Filter those that literally have no arrays or are missing any of the 3 arrays. 
-  // If an array is completely missing (null), we will estimate.
-  const isEmpty = (arr) => !arr || (Array.isArray(arr) && arr.length === 0);
+  // Backfill all records that don't have the new frequency columns set
+  // We'll use the existing books_selected/series_selected arrays as hints
+  const toProcess = responses.filter(r => !r.reads_books_freq || !r.watches_series_freq);
 
-  const toBackfill = responses.filter(r => 
-    isEmpty(r.hobbies_selected) && isEmpty(r.books_selected) && isEmpty(r.series_selected)
-  );
+  console.log(`Processing ${toProcess.length} of ${responses.length} records...`);
 
-  console.log(`Found ${toBackfill.length} records to backfill out of ${responses.length}.`);
+  for (let i = 0; i < toProcess.length; i++) {
+    const r = toProcess[i];
+    console.log(`[${i+1}/${toProcess.length}] ${r.name || r.id}...`);
 
-  for (let i = 0; i < toBackfill.length; i++) {
-    const r = toBackfill[i];
-    console.log(`[${i+1}/${toBackfill.length}] Processing ${r.name || r.id}...`);
+    const hasBooks = Array.isArray(r.books_selected) && r.books_selected.length > 0 &&
+      !r.books_selected.includes("Only time I picked a book was for clearing IPMAT VA");
+    const hasSeries = Array.isArray(r.series_selected) && r.series_selected.length > 0;
 
-    const prompt = `You are an expert psychometric profiler. Given a survey respondent with the following profile:
+    const prompt = `You are an expert psychometric profiler. Given a respondent:
 - Age: ${r.age || 'Unknown'}
 - Gender: ${r.gender || 'Unknown'}
 - MBTI Type: ${r.mbti_type || 'Unknown'}
-- Top Game Genres: ${Array.isArray(r.top_genres) ? r.top_genres.join(', ') : 'Unknown'}
-- Premiumness Bias: ${r.premiumness_avg} (Higher = prefers AAA/expensive games)
+- Game genres they like: ${Array.isArray(r.top_genres) ? r.top_genres.join(', ') : 'Unknown'}
+- Books they selected (if any): ${hasBooks ? r.books_selected.join(', ') : 'None / chose the non-reader option'}
+- Series they selected (if any): ${hasSeries ? r.series_selected.join(', ') : 'None'}
 
-Estimate their likely preferences for Series, Books, and Hobbies.
-Select 1 to 5 genres from the exact Series Options.
-Select 1 to 5 genres from the exact Books Options. (Use 'Only time I picked a book was for clearing IPMAT VA' if they seem totally uninterested in reading fiction/non-fiction based on their profile).
-Select 1 to 10 choices from the exact Hobbies Options.
+Pick exactly ONE option for each from these lists.
 
-You must only return a valid JSON object strictly matching exactly this format (do not use markdown blocks):
-{
-  "series_selected": ["exact string 1", "exact string 2"],
-  "books_selected": ["exact string 1"],
-  "hobbies_selected": ["exact string 1", "exact string 2"]
-}
+Books per year options (pick one):
+${BOOKS_OPTIONS.join('\n')}
 
-Series Options:
-${JSON.stringify(seriesOptions, null, 2)}
+Series/shows per year options (pick one):
+${SERIES_OPTIONS.join('\n')}
 
-Books Options:
-${JSON.stringify(booksOptions, null, 2)}
+Important: if they chose no books, pick "I don't read books". If no series, pick "I don't watch series".
+If they did choose books/series, estimate a plausible frequency based on their personality and choices.
 
-Hobbies Options:
-${JSON.stringify(hobbiesOptions, null, 2)}
-`;
+Return ONLY valid JSON (no markdown):
+{"reads_books_freq": "<exact option>", "watches_series_freq": "<exact option>"}`;
 
     try {
       const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
-        temperature: 0.7,
+        temperature: 0.5,
       });
 
-      const resultStr = completion.choices[0].message.content;
-      const parsed = JSON.parse(resultStr);
+      const parsed = JSON.parse(completion.choices[0].message.content);
 
-      const updatePayload = {};
-      if (!r.series_selected || r.series_selected.length === 0) updatePayload.series_selected = parsed.series_selected || [];
-      if (!r.books_selected || r.books_selected.length === 0) updatePayload.books_selected = parsed.books_selected || [];
-      if (!r.hobbies_selected || r.hobbies_selected.length === 0) updatePayload.hobbies_selected = parsed.hobbies_selected || [];
+      // Validate options
+      const booksFreq = BOOKS_OPTIONS.includes(parsed.reads_books_freq) ? parsed.reads_books_freq : BOOKS_OPTIONS[0];
+      const seriesFreq = SERIES_OPTIONS.includes(parsed.watches_series_freq) ? parsed.watches_series_freq : SERIES_OPTIONS[0];
 
-      // Check if there are things to update
-      if (Object.keys(updatePayload).length > 0) {
-        const { error: upErr } = await supabase.from('responses').update(updatePayload).eq('id', r.id);
-        if (upErr) {
-          console.error("  -> Update failed:", upErr);
-        } else {
-          console.log("  -> Updated:", JSON.stringify(updatePayload));
-        }
+      const { error: upErr } = await supabase
+        .from('responses')
+        .update({ reads_books_freq: booksFreq, watches_series_freq: seriesFreq })
+        .eq('id', r.id);
+
+      if (upErr) {
+        console.error(`  -> Update failed:`, upErr.message);
       } else {
-        console.log("  -> Nothing to update");
+        console.log(`  -> books: "${booksFreq}", series: "${seriesFreq}"`);
       }
 
-      await sleep(500); // rate limiting
+      await sleep(300);
     } catch (e) {
-      console.error("  -> Error running OpenAI or processing:", e.message);
+      console.error(`  -> Error:`, e.message);
     }
   }
 
-  console.log("Done backfilling.");
+  console.log("Done.");
 }
 
 main();

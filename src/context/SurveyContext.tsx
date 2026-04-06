@@ -63,10 +63,10 @@ interface SurveyContextType {
   setBooksSelected: (books: string[]) => void;
   hobbiesSelected: string[];
   setHobbiesSelected: (hobbies: string[]) => void;
-  readsBooks: boolean | null;
-  setReadsBooks: (v: boolean | null) => void;
-  watchesSeries: boolean | null;
-  setWatchesSeries: (v: boolean | null) => void;
+  readsBooks: string | null;
+  setReadsBooks: (v: string | null) => void;
+  watchesSeries: string | null;
+  setWatchesSeries: (v: string | null) => void;
   hasHobbies: boolean | null;
   setHasHobbies: (v: boolean | null) => void;
   startTime: number | null;
@@ -98,8 +98,8 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
   const [seriesSelected, _setSeriesSelected] = useState<string[]>(() => loadFromStorage("seriesSelected", []));
   const [booksSelected, _setBooksSelected] = useState<string[]>(() => loadFromStorage("booksSelected", []));
   const [hobbiesSelected, _setHobbiesSelected] = useState<string[]>(() => loadFromStorage("hobbiesSelected", []));
-  const [readsBooks, _setReadsBooks] = useState<boolean | null>(() => loadFromStorage("readsBooks", null));
-  const [watchesSeries, _setWatchesSeries] = useState<boolean | null>(() => loadFromStorage("watchesSeries", null));
+  const [readsBooks, _setReadsBooks] = useState<string | null>(() => loadFromStorage("readsBooks", null));
+  const [watchesSeries, _setWatchesSeries] = useState<string | null>(() => loadFromStorage("watchesSeries", null));
   const [hasHobbies, _setHasHobbies] = useState<boolean | null>(() => loadFromStorage("hasHobbies", null));
   const [startTime, _setStartTime] = useState<number | null>(() => loadFromStorage("startTime", null));
 
@@ -127,8 +127,8 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
   const setSeriesSelected = (v: string[]) => { _setSeriesSelected(v); saveToStorage({ seriesSelected: v }); };
   const setBooksSelected = (v: string[]) => { _setBooksSelected(v); saveToStorage({ booksSelected: v }); };
   const setHobbiesSelected = (v: string[]) => { _setHobbiesSelected(v); saveToStorage({ hobbiesSelected: v }); };
-  const setReadsBooks = (v: boolean | null) => { _setReadsBooks(v); saveToStorage({ readsBooks: v }); };
-  const setWatchesSeries = (v: boolean | null) => { _setWatchesSeries(v); saveToStorage({ watchesSeries: v }); };
+  const setReadsBooks = (v: string | null) => { _setReadsBooks(v); saveToStorage({ readsBooks: v }); };
+  const setWatchesSeries = (v: string | null) => { _setWatchesSeries(v); saveToStorage({ watchesSeries: v }); };
   const setHasHobbies = (v: boolean | null) => { _setHasHobbies(v); saveToStorage({ hasHobbies: v }); };
   const setStartTime = (v: number | null) => { _setStartTime(v); saveToStorage({ startTime: v }); };
 
@@ -143,12 +143,15 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
         setStep(3); // Normal flow (PickGames)
       }
     } else if (currentStep === 5) {
-      if (watchesSeries) setStep(6);
-      else if (readsBooks) setStep(7);
+      const willSeries = watchesSeries && watchesSeries !== "I don't watch series";
+      const willBooks = readsBooks && readsBooks !== "I don't read books";
+      if (willSeries) setStep(6);
+      else if (willBooks) setStep(7);
       else if (hasHobbies) setStep(8);
       else setStep(9);
     } else if (currentStep === 6) {
-      if (readsBooks) setStep(7);
+      const willBooks = readsBooks && readsBooks !== "I don't read books";
+      if (willBooks) setStep(7);
       else if (hasHobbies) setStep(8);
       else setStep(9);
     } else if (currentStep === 7) {
